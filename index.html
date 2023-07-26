@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olta Kiosk</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+    integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./main.js" type="module"></script>
+</head>
+
+<body>
+  <h1 id="loading">LOADING</h1>
+  <template id="o-details">
+    <div class="flex" part="flex">
+      <p part="qrcode">
+        <slot name="qrcode"></slot>
+      </p>
+      <div>
+        <h1 part="name">
+          <slot name="name"></slot>
+        </h1>
+        <h2 part="creator">
+          <slot name="creator"></slot>
+        </h2>
+        <p part="description">
+          <slot name="description"></slot>
+        </p>
+      </div>
+    </div>
+  </template>
+  <dialog class="options">
+    <div class="button-container">
+      <button class="change">Next Project</button>
+      <button class="random">Random Edition</button>
+      <button class="close">close</button>
+    </div>
+    <form id="options-form"></form>
+  </dialog>
+</body>
+
+</html>
