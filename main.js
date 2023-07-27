@@ -230,7 +230,8 @@ function disableButtons() {
     details.setAttribute("name", name)
     details.setAttribute("description", decode(description))
     details.setAttribute("creator", creator)
-    details.setAttribute("qrcode", `https://olta.art/project/${currentProject().id}`)
+    // details.setAttribute("qrcode", `https://olta.art/project/${currentProject().id}`)
+    details.setAttribute("qrcode", `https://metamask.app.link/dapp/olta.art/project/${currentProject().id}`)
   }, 2500)
 }
 
