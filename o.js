@@ -14,7 +14,7 @@ export class Viewer extends HTMLElement {
     console.log(options)
 
     const iframe = ranger(`
-      <iframe src="" sandbox="allow-scripts allow-same-origin"></iframe>
+      <iframe src="" sandbox="allow-scripts allow-same-origin" allow="camera *; fullscreen *; accelerometer *; gamepad *; gyroscope *; microphone *; xr-spatial-tracking *;"></iframe>
     `)
 
     const style = ranger(`
@@ -47,6 +47,7 @@ export class Viewer extends HTMLElement {
           style="opacity: 0.0;"
           class="new"
           sandbox="allow-scripts allow-same-origin"
+          allow="camera *; fullscreen *; accelerometer *; gamepad *; gyroscope *; microphone *; xr-spatial-tracking *;"
         />
       `)
 
