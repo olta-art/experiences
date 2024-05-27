@@ -73,12 +73,16 @@ o-details::part(description) {
   white-space: pre-line;
 }
 
-
 o-details::part(flex) {
   display: flex;
   align-items: end;
   gap: 1rem;
   transform: scale(1);
+}
+
+o-details::part(qrcode) {
+  border: solid;
+  border-width: 10px;
 }
 
 button {
@@ -153,4 +157,9 @@ button:disabled {
   justify-self: center;
   align-self: center;
   animation: rotation infinite 2500ms linear;
+}
+
+#qrcode {
+  border: solid !important;
+  border-width: 10px !important;
 }
