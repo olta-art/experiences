@@ -2,7 +2,17 @@
 // NB: Undecided whether this is needed in the helper module.
 export const URL = self.URL || window.webkitURL
 
-export const SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/olta-art/olta-editions-mumbai"
+// TODO: You need to add your own API key from https://thegraph.com/explorer/
+const THE_GRAPH_API_KEY = "d11db1e253bf0c5eb89cb8ecf5f82a15";
+
+//d11db1e253bf0c5eb89cb8ecf5f82a15
+
+// 22638926cd51e225989e7f42288bcf8c
+// 22638926cd51e225989e7f42288bcf8c
+
+//const THE_GRAPH_API_KEY = "3eGGTUNpbmzMZx2UrHyDzWTKaQeawGpPPUuJQSxg3LZQ";
+
+
 export const POLL_RATE = 10000
 // Got this using `self.crypto.randomUUID()`.
 export const SEPARATOR = "81ce6396-1893-4cd3-8d32-e82ec62016b5"
@@ -71,6 +81,7 @@ export async function queryfetcher(url, query) {
     body: JSON.stringify({ query }),
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${THE_GRAPH_API_KEY}`
     },
     method: "post",
   }

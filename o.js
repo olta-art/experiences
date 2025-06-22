@@ -10,13 +10,11 @@ export class Viewer extends HTMLElement {
   constructor(options) {
     super();
 
-    console.log(options);
-
     const iframe = ranger(`
       <iframe 
         scrolling="no"
         src="" 
-        sandbox="allow-scripts allow-same-origin" 
+        sandbox="allow-scripts allow-pointer-lock" 
         allow="camera *; fullscreen *; accelerometer *; gamepad *; gyroscope *; microphone *; xr-spatial-tracking *;"
         >
       </iframe>
@@ -52,7 +50,7 @@ export class Viewer extends HTMLElement {
           src="${newValue}"
           style="opacity: 0.0;"
           class="new"
-          sandbox="allow-scripts allow-same-origin"
+          sandbox="allow-scripts allow-pointer-lock"
           allow="camera *; fullscreen *; accelerometer *; gamepad *; gyroscope *; microphone *; xr-spatial-tracking *;"
         />
       `);
