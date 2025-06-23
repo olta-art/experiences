@@ -2,6 +2,23 @@ import { Details, Viewer } from "./o.js";
 import { getProjects } from "./querys.js";
 import { queryfetcher, SEPARATOR as sep, decode } from "./helpers.js";
 
+const staticArtworks = [
+  {
+    id: "static-1",
+    name: "Olta Home",
+    description: "A static interactive piece.",
+    creator: { profile: { name: "Terence" } },
+    editionSize: 1,
+    symbol: "STATIC1",
+    allow: "camera",
+    lastAddedVersion: {
+      animation: { url: "https://a7frsrbb25jdkt6rkwxhj6y44eh3rzyiffo6ait3kypjm7fqh5lq.arweave.net/B8sZRCHXUjVP0VWudPsc4Q-45wgpXeAie1YelnywP1c/" }
+    },
+    qrCodeUrl: "https://yourdomain.com/qr/artwork1"
+  }
+  // Add more static artworks as needed
+];
+
 if ("customElements" in window) {
   customElements.define("o-viewer", Viewer);
   customElements.define("o-details", Details);
@@ -351,7 +368,8 @@ function alignQrCodeToRight() {
     }
   });
 
-  projects = [...filteredProjects];
+  // Merge static artworks with dynamic ones
+  projects = [...staticArtworks, ...filteredProjects];
   options.projects = projects.map((p) => p.id);
 
   renderOptions();
@@ -364,3 +382,17 @@ function alignQrCodeToRight() {
 function colorTrace(msg, color) {
   console.log("%c" + msg, "color:" + color + ";font-weight:bold;");
 }
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => {
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.srcObject = stream;
+    video.style.display = 'none';
+    document.body.appendChild(video);
+
+    // Add motion detection logic here
+  })
+  .catch(err => {
+    alert('Camera access denied or not available.');
+  });
