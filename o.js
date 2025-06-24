@@ -15,10 +15,18 @@ export class Viewer extends HTMLElement {
         scrolling="no"
         src="" 
         sandbox="allow-scripts allow-pointer-lock" 
-        allow="camera *; fullscreen *; accelerometer *; gamepad *; gyroscope *; microphone *; xr-spatial-tracking *;"
+        allow="camera *; fullscreen *; accelerometer *; gamepad *; 
+        gyroscope *; microphone *; xr-spatial-tracking *;"
         >
       </iframe>
     `);
+
+
+    // <iframe 
+    // style="height:700px; width:100%; overflow: hidden;" src="https://yfhwavf2ac37wdgcee5p62jp4myyk4imhpdrvarmfhawg36firrq.arweave.net/wU9gVLoAt_sMwiE6_2kv4zGFcQw7xxqCLCnBY2_FRGM/?id=1&address=0x6d24ce4c32e556313b431fb156edf2060680a998&seed=9" 
+    // frameborder="0"
+    // scrolling="no"
+    // allowfullscreen="allowfullscreen" ></iframe>
 
     const style = ranger(`
     <style>
@@ -50,7 +58,7 @@ export class Viewer extends HTMLElement {
           src="${newValue}"
           style="opacity: 0.0;"
           class="new"
-          sandbox="allow-scripts allow-pointer-lock"
+          sandbox="allow-scripts allow-pointer-lock allow-same-origin"
           allow="camera *; fullscreen *; accelerometer *; gamepad *; gyroscope *; microphone *; xr-spatial-tracking *;"
         />
       `);

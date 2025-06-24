@@ -5,17 +5,52 @@ import { queryfetcher, SEPARATOR as sep, decode } from "./helpers.js";
 const staticArtworks = [
   {
     id: "static-1",
-    name: "Olta Home",
-    description: "A static interactive piece.",
-    creator: { profile: { name: "Terence" } },
+    name: "Optical Verlet",
+    description: "Motion interactive.",
+    creator: { profile: { name: "XVI_JOJO" } },
     editionSize: 1,
     symbol: "STATIC1",
-    allow: "camera",
     lastAddedVersion: {
       animation: { url: "https://a7frsrbb25jdkt6rkwxhj6y44eh3rzyiffo6ait3kypjm7fqh5lq.arweave.net/B8sZRCHXUjVP0VWudPsc4Q-45wgpXeAie1YelnywP1c/" }
     },
     qrCodeUrl: "https://yourdomain.com/qr/artwork1"
+  },
+
+  {
+    id: "static-2",
+    name: "Peer into the Flow",
+    description: "Motion interactive.",
+    creator: { profile: { name: "Epok.Tech" } },
+    editionSize: 1,
+    symbol: "STATIC1",
+    lastAddedVersion: {
+      animation: { url: "https://yfhwavf2ac37wdgcee5p62jp4myyk4imhpdrvarmfhawg36firrq.arweave.net/wU9gVLoAt_sMwiE6_2kv4zGFcQw7xxqCLCnBY2_FRGM/?id=1&address=0x6d24ce4c32e556313b431fb156edf2060680a998&seed=9" }
+    },
+    qrCodeUrl: "https://yourdomain.com/qr/artwork1"
+  },
+
+  {
+    id: "static-3",
+    name: "Dissolvi",
+    description: "Motion interactive.",
+    creator: { profile: { name: "Omar Lobato" } },
+    editionSize: 1,
+    symbol: "STATIC1",
+    lastAddedVersion: {
+      animation: { url: "https://dissolvi-olta.vercel.app/" }
+    },
+    qrCodeUrl: "https://yourdomain.com/qr/artwork1"
   }
+
+  
+  // Optical Verlet - Artwork 
+  // https://a7frsrbb25jdkt6rkwxhj6y44eh3rzyiffo6ait3kypjm7fqh5lq.arweave.net/B8sZRCHXUjVP0VWudPsc4Q-45wgpXeAie1YelnywP1c/
+
+  // Peer into the Flow - Artwork 
+  // https://yfhwavf2ac37wdgcee5p62jp4myyk4imhpdrvarmfhawg36firrq.arweave.net/wU9gVLoAt_sMwiE6_2kv4zGFcQw7xxqCLCnBY2_FRGM/?id=1&address=0x6d24ce4c32e556313b431fb156edf2060680a998&seed=9
+  
+  
+  
   // Add more static artworks as needed
 ];
 
@@ -386,13 +421,30 @@ function colorTrace(msg, color) {
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
     const video = document.createElement('video');
-    video.autoplay = true;
     video.srcObject = stream;
-    video.style.display = 'none';
-    document.body.appendChild(video);
-
-    // Add motion detection logic here
+    video.autoplay = true;
+    // Process video for motion detection
   })
   .catch(err => {
-    alert('Camera access denied or not available.');
+    console.error('Camera access error:', err);
   });
+
+// fullscreen button
+const fullscreenBtn = document.querySelector(".fullscreen");
+fullscreenBtn.addEventListener("click", () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.log(`Error attempting to enable fullscreen: ${err.message}`);
+    });
+    fullscreenBtn.style.display = 'none';
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+// Listen for fullscreen change event
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    fullscreenBtn.style.display = ''; // Show button when exiting fullscreen
+  }
+});

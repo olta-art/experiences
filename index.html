@@ -15,22 +15,23 @@
 
 <body>
   <h1 id="loading">LOADING</h1>
+  <button class="fullscreen">⛶</button>
   <template id="o-details">
     <div class="flex details-panel" part="flex" id="details-panel">
       <p part="qrcode" class="qrcodecanvas">
         <slot name="qrcode"></slot>
       </p>
-      <div>
-        <h1 part="name">
-          <slot name="name"></slot>
-        </h1>
-        <h2 part="creator">
-          <slot name="creator"></slot>
-        </h2>
-        <p part="description">
-          <slot name="description"></slot>
-        </p>
-      </div>
+
+      <h1 part="name">
+        <slot name="name"></slot>
+      </h1>
+      <h2 part="creator">
+        <slot name="creator"></slot>
+      </h2>
+      <p part="description">
+        <slot name="description"></slot>
+      </p>
+    </div>
     </div>
   </template>
   <dialog class="options">
