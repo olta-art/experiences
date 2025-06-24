@@ -224,7 +224,7 @@ function renderOptions() {
         <label for="project-creator">creator</label>
       </div>
       <div>
-        <input name="description" type="checkbox" id="project-description" checked>
+        <input name="description" type="checkbox" id="project-description">
         <label for="project-description">description</label>
       </div>
       <div>
@@ -392,7 +392,7 @@ function alignQrCodeToRight() {
 
   // Filtering out the projects
   let filteredProjects = resp.projects.filter(
-    (project) => !["Loop", "Don't Scroll"].includes(project.name)
+    (project) => !["Loop", "Don't Scroll", "Totems", "FORM"].includes(project.name)
   );
 
   // Adding new URLs for the QR code to specific projects
