@@ -4,6 +4,19 @@ import { queryfetcher, SEPARATOR as sep, decode } from "./helpers.js";
 
 const staticArtworks = [
   {
+    id: "static-4",
+    name: "Shadows Touch Accross Time",
+    description: "Motion interactive",
+    creator: { profile: { name: "Epok.Tech" } },
+    editionSize: 1,
+    symbol: "STATIC1",
+    lastAddedVersion: {
+      animation: { url: "https://epok.tech/shadows-touch-across-time-demo/" }
+    },
+    qrCodeUrl: "https://yourdomain.com/qr/artwork1"
+  },
+
+  {
     id: "static-1",
     name: "Optical Verlet",
     description: "Motion interactive.",
@@ -12,19 +25,6 @@ const staticArtworks = [
     symbol: "STATIC1",
     lastAddedVersion: {
       animation: { url: "https://a7frsrbb25jdkt6rkwxhj6y44eh3rzyiffo6ait3kypjm7fqh5lq.arweave.net/B8sZRCHXUjVP0VWudPsc4Q-45wgpXeAie1YelnywP1c/" }
-    },
-    qrCodeUrl: "https://yourdomain.com/qr/artwork1"
-  },
-
-  {
-    id: "static-2",
-    name: "Peer into the Flow",
-    description: "Motion interactive.",
-    creator: { profile: { name: "Epok.Tech" } },
-    editionSize: 1,
-    symbol: "STATIC1",
-    lastAddedVersion: {
-      animation: { url: "https://yfhwavf2ac37wdgcee5p62jp4myyk4imhpdrvarmfhawg36firrq.arweave.net/wU9gVLoAt_sMwiE6_2kv4zGFcQw7xxqCLCnBY2_FRGM/?id=1&address=0x6d24ce4c32e556313b431fb156edf2060680a998&seed=9" }
     },
     qrCodeUrl: "https://yourdomain.com/qr/artwork1"
   },
@@ -41,6 +41,7 @@ const staticArtworks = [
     },
     qrCodeUrl: "https://yourdomain.com/qr/artwork1"
   }
+  
 
   
   // Optical Verlet - Artwork 
@@ -49,7 +50,8 @@ const staticArtworks = [
   // Peer into the Flow - Artwork 
   // https://yfhwavf2ac37wdgcee5p62jp4myyk4imhpdrvarmfhawg36firrq.arweave.net/wU9gVLoAt_sMwiE6_2kv4zGFcQw7xxqCLCnBY2_FRGM/?id=1&address=0x6d24ce4c32e556313b431fb156edf2060680a998&seed=9
   
-  
+  // Shadows Touch Accross Time
+  // https://epok.tech/shadows-touch-across-time-demo/
   
   // Add more static artworks as needed
 ];
@@ -70,8 +72,8 @@ let editionInterval;
 const options = {
   projects: [],
   timing: {
-    project: 90,
-    edition: 30,
+    project: 45,
+    edition: 45,
   },
   display: {
     name: true,
@@ -92,12 +94,20 @@ const details = document.createElement("o-details");
 details.classList = "o-details";
 document.body.appendChild(details);
 
-// random button
-const random = document.querySelector(".random");
-random.addEventListener("click", () => {
-  seed = getRandSeed(seed, currentProject().editionSize);
+// previous button
+const previous = document.querySelector(".previous");
+previous.addEventListener("click", () => {
+  current = decrementLoop(current, options.projects.length);
+  
+  // For artworks with multiple editions, keep random option available
+  // but don't auto-randomize - let user control this
+  if (currentProject().editionSize > 1) {
+    // Note: We removed the random button, so this is just for reference
+    // You could add a different control here if needed
+  }
+
   viewer.setAttribute("url", getUrl());
-  random.classList = "random spin";
+  previous.classList = "previous spin";
   disableButtons();
 });
 
@@ -105,11 +115,9 @@ random.addEventListener("click", () => {
 const change = document.querySelector(".change");
 change.addEventListener("click", () => {
   current = incrementLoop(current, options.projects.length);
-  seed = getRandSeed(seed, currentProject().editionSize);
-
-  isSeeded()
-    ? random.removeAttribute("hidden")
-    : random.setAttribute("hidden", "");
+  
+  // Note: Random edition functionality removed - users can use Previous/Next buttons
+  // to navigate through projects manually
 
   viewer.setAttribute("url", getUrl());
   change.classList = "change spin";
@@ -203,12 +211,12 @@ function renderOptions() {
     <legend>Timing</legend>
       <div>
         <label for="project-time">Project Time</label>
-        <input name="project" type="number" min="10" id="project-time" value="90">
+        <input name="project" type="number" min="10" id="project-time" value="45">
         <small>seconds</small>
       </div>
       <div>
         <label for="edition-time">Edition Time</label>
-        <input name="edition" type="number" min="5" id="edition-time" value="30">
+        <input name="edition" type="number" min="5" id="edition-time" value="45">
         <small>seconds</small>
       </div>
     </fieldset>
@@ -234,8 +242,8 @@ function renderOptions() {
     </fieldset>
   `;
 
-  updateProjectInterval(90);
-  updateEditionInterval(30);
+  updateProjectInterval(45);
+  updateEditionInterval(45);
 }
 
 function updateProjectInterval(seconds) {
@@ -243,13 +251,11 @@ function updateProjectInterval(seconds) {
     clearInterval(projectInterval);
   }
   projectInterval = setInterval(() => {
-    // colorTrace("FUCKKKK", "orange");
+    // Move to next project sequentially
     current = incrementLoop(current, options.projects.length);
-    seed = getRandSeed(seed, currentProject().editionSize);
-
-    isSeeded()
-      ? random.removeAttribute("hidden")
-      : random.setAttribute("hidden", "");
+    
+    // Note: Random edition functionality removed - users can use Previous/Next buttons
+    // to navigate through projects manually
 
     viewer.setAttribute("url", getUrl());
     change.classList = "change spin";
@@ -266,7 +272,7 @@ function updateEditionInterval(seconds) {
   editionInterval = setInterval(() => {
     seed = getRandSeed(seed, currentProject().editionSize);
     viewer.setAttribute("url", getUrl());
-    random.classList = "random spin";
+    // Note: Random button removed - edition cycling handled differently now
     disableButtons();
   }, seconds * 1000);
 }
@@ -275,29 +281,39 @@ const spinner = document.querySelector(".spinner");
 
 function disableButtons() {
   // TODO: show spinner
-  random.setAttribute("disabled", "");
+  previous.setAttribute("disabled", "");
   change.setAttribute("disabled", "");
   setTimeout(() => {
     change.removeAttribute("disabled");
-    random.removeAttribute("disabled");
+    previous.removeAttribute("disabled");
 
     change.classList = "change";
-    random.classList = "random";
+    previous.classList = "previous";
 
     const { name, description, creator } = getDetails();
     console.log("olta", name);
-    details.setAttribute("name", name);
-    details.setAttribute("description", decode(description));
-    details.setAttribute("creator", creator);
-    if (currentProject().qrCodeUrl) {
-      details.setAttribute("qrcode", currentProject().qrCodeUrl);
-    } else {
-      details.setAttribute(
-        "qrcode",
-        `https://metamask.app.link/dapp/nft.olta.art/project/${
-          currentProject().id
-        }`
-      );
+    
+    // Only set attributes if they are enabled in display options
+    if (options.display.name) {
+      details.setAttribute("name", name);
+    }
+    if (options.display.description) {
+      details.setAttribute("description", decode(description));
+    }
+    if (options.display.creator) {
+      details.setAttribute("creator", creator);
+    }
+    if (options.display.qr) {
+      if (currentProject().qrCodeUrl) {
+        details.setAttribute("qrcode", currentProject().qrCodeUrl);
+      } else {
+        details.setAttribute(
+          "qrcode",
+          `https://metamask.app.link/dapp/nft.olta.art/project/${
+            currentProject().id
+          }`
+        );
+      }
     }
 
     alignQrCodeToRight();
@@ -309,6 +325,13 @@ function incrementLoop(current, length) {
   if (next >= length) return 0;
 
   return next;
+}
+
+function decrementLoop(current, length) {
+  const prev = current - 1;
+  if (prev < 0) return length - 1;
+
+  return prev;
 }
 
 function getRandSeed(seed, editionSize) {
@@ -363,7 +386,7 @@ function currentProject() {
 function alignQrCodeToRight() {
   // Insert the project symbol property inside the array
   // so it's QR code and Artist Name will be aligned to the right
-  const projectsToAlignRight = ["PEER-INTO-THE-FLOW"];
+  const projectsToAlignRight = []; // Removed "PEER-INTO-THE-FLOW"
 
   let oDetails = document.getElementsByClassName("o-details")[0];
   let detailsPanel = details.shadowRoot.getElementById("details-panel");
@@ -392,8 +415,20 @@ function alignQrCodeToRight() {
 
   // Filtering out the projects
   let filteredProjects = resp.projects.filter(
-    (project) => !["Loop", "Don't Scroll", "Totems", "FORM"].includes(project.name)
+    (project) => !["Loop", "Don't Scroll", "Totems", "FORM", "Fragmented Existence", "Choose your Words", "Lesson 1", "The Drop", "THE DROP", "Portal | One"].includes(project.name)
   );
+
+  // Reorder projects: move "Sacred Moth" after "Peer into the Flow"
+  const peerIntoFlowIndex = filteredProjects.findIndex(p => p.name === "Peer into the Flow");
+  const sacredMothIndex = filteredProjects.findIndex(p => p.name === "Sacred Moth");
+  
+  if (peerIntoFlowIndex !== -1 && sacredMothIndex !== -1) {
+    // Remove Sacred Moth from its current position
+    const sacredMoth = filteredProjects.splice(sacredMothIndex, 1)[0];
+    // Insert it after Peer into the Flow
+    const insertIndex = peerIntoFlowIndex + 1;
+    filteredProjects.splice(insertIndex, 0, sacredMoth);
+  }
 
   // Adding new URLs for the QR code to specific projects
   filteredProjects.forEach((project) => {
