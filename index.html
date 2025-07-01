@@ -13,12 +13,34 @@
   <script src="./main.js" type="module"></script>
 
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C3C3NKFP2L"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-C3C3NKFP2L');
+  </script>
+
+  <a class="twitter-timeline" href="https://twitter.com/oltaArt?ref_src=twsrc%5Etfw">Tweets by you</a>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+  <script>
+    // Your Firebase config here
+    const firebaseConfig = { /* ... */ };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // On page load
+    const viewerRef = db.ref('viewers').push();
+    viewerRef.set(true);
+    viewerRef.onDisconnect().remove();
+
+    // Display count
+    db.ref('viewers').on('value', (snapshot) => {
+      document.getElementById('viewer-count').textContent = snapshot.numChildren();
+    });
   </script>
 </head>
 
@@ -51,6 +73,7 @@
     </div>
     <form id="options-form"></form>
   </dialog>
+  <div>Live viewers: <span id="viewer-count">0</span></div>
 </body>
 
 </html>
