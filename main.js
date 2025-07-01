@@ -116,6 +116,14 @@ const change = document.querySelector(".change");
 change.addEventListener("click", () => {
   current = incrementLoop(current, options.projects.length);
   
+  // Google Analytics event for testing
+  if (typeof gtag === 'function') {
+    gtag('event', 'next_project_clicked', {
+      'event_category': 'engagement',
+      'event_label': 'Next Project Button'
+    });
+  }
+
   // Note: Random edition functionality removed - users can use Previous/Next buttons
   // to navigate through projects manually
 
