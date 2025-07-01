@@ -255,3 +255,29 @@ button:disabled {
   opacity: 1;
   cursor: url("./assets/cursor.png") 15 15, pointer;
 }
+
+#viewer-counter {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+#viewer-counter:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.05);
+}
+
+#viewer-count {
+  color: #00ff88;
+  font-weight: 900;
+}

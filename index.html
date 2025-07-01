@@ -26,31 +26,59 @@
 
 
 
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
   <script>
     // Your Firebase config here
     const firebaseConfig = {
       apiKey: "AIzaSyDDEb8UeIk6D0pxl_IWEMADqhLz4ZEsA2g",
       authDomain: "olta-70b79.firebaseapp.com",
-      databaseURL: "https://olta-70b79-default-rtdb.europe-west1.firebasedatabase.app/",
+      databaseURL: "https://olta-70b79-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "olta-70b79",
       storageBucket: "olta-70b79.appspot.com",
       messagingSenderId: "1009481982599",
       appId: "1:1009481982599:web:c625bd9f64d9625fae8e22"
     };
-    const app = firebase.initializeApp(firebaseConfig);
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // On page load
-    const viewerRef = db.ref('viewers').push();
-    viewerRef.set(true);
+    // Generate unique viewer ID
+    const viewerId = 'viewer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+    // On page load - add this viewer
+    const viewerRef = db.ref('viewers/' + viewerId);
+    viewerRef.set({
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent
+    });
+
+    // Remove this viewer when they leave
     viewerRef.onDisconnect().remove();
 
     // Display count
     db.ref('viewers').on('value', (snapshot) => {
-      document.getElementById('viewer-count').textContent = snapshot.numChildren();
+      const count = snapshot.numChildren();
+      const viewerCountElement = document.getElementById('viewer-count');
+      if (viewerCountElement) {
+        viewerCountElement.textContent = count;
+      }
+      console.log('Live viewers:', count);
     });
+
+    // Clean up old viewers (older than 5 minutes)
+    setInterval(() => {
+      const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+      db.ref('viewers').once('value').then((snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          const viewer = childSnapshot.val();
+          if (viewer && viewer.timestamp < fiveMinutesAgo) {
+            childSnapshot.ref.remove();
+          }
+        });
+      });
+    }, 60000); // Check every minute
   </script>
 </head>
 
@@ -83,7 +111,7 @@
     </div>
     <form id="options-form"></form>
   </dialog>
-  <div>Live viewers: <span id="viewer-count">0</span></div>
+  <div id="viewer-counter">👥 Live viewers: <span id="viewer-count">0</span></div>
 </body>
 
 </html>
