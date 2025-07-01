@@ -491,3 +491,13 @@ document.addEventListener('fullscreenchange', () => {
     fullscreenBtn.style.display = ''; // Show button when exiting fullscreen
   }
 });
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDDEb8UeIk6D0pxl_IWEMADqhLz4ZEsA2g",
+  authDomain: "olta-70b79.firebaseapp.com",
+  databaseURL: "https://olta-70b79-default-rtdb.firebaseio.com",
+  projectId: "olta-70b79",
+  storageBucket: "olta-70b79.appspot.com",
+  messagingSenderId: "1009481982599",
+  appId: "1:1009481982599:web:c625bd9f64d9625fae8e22"
+};
