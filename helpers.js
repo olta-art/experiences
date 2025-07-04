@@ -110,3 +110,13 @@ export function decode(s = "") {
     .replaceAll(`\\"`, `\"`)
     .replaceAll(`\\\\`, `\\`)
 }
+
+// Example: filter out gesture artworks on mobile
+if (isMobile) {
+  filteredStaticArtworks = filteredStaticArtworks.filter(
+    art => !art.isGesture // or use a name/ID check
+  );
+  filteredProjects = filteredProjects.filter(
+    project => !project.isGesture // or use a name/ID check
+  );
+}

@@ -428,11 +428,18 @@ function setCurrentProjectIdGlobal() {
 // Detect mobile device
 const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-// Filter out 'Shadows Touch Accross Time' from staticArtworks on mobile
+// List of gesture/spatial controlled artwork names to exclude on mobile
+const gestureArtworkNames = [
+  "Optical Verlet",
+  "Dissolvi"
+  // Add more gesture artwork names here as needed
+];
+
+// Filter out gesture artworks from staticArtworks on mobile
 let filteredStaticArtworks = staticArtworks;
 if (isMobile) {
   filteredStaticArtworks = staticArtworks.filter(
-    (art) => !(art.name === "Shadows Touch Accross Time" && art.creator?.profile?.name === "Epok.Tech")
+    (art) => !gestureArtworkNames.includes(art.name)
   );
   options.display.qr = false;
 }
@@ -463,10 +470,10 @@ async function requestCameraOnce() {
     (project) => !["Loop", "Don't Scroll", "Totems", "FORM", "Fragmented Existence", "Choose your Words", "Lesson 1", "The Drop", "THE DROP", "Portal | One"].includes(project.name)
   );
 
-  // On mobile, filter out 'Shadows Touch Accross Time' by Epok.Tech
+  // On mobile, filter out gesture artworks by name
   if (isMobile) {
     filteredProjects = filteredProjects.filter(
-      (project) => !(project.name === "Shadows Touch Accross Time" && project.creator?.profile?.name === "Epok.Tech")
+      (project) => !gestureArtworkNames.includes(project.name)
     );
   }
 
