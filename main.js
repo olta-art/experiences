@@ -440,11 +440,11 @@ if (isMobile) {
 // Only request camera access once on mobile
 let cameraStream = null;
 async function requestCameraOnce() {
-  if (!cameraStream && isMobile) {
+  if (isMobile) return; // Do not request camera on mobile
+  if (!cameraStream) {
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      // You can now use cameraStream for gesture artworks
-      // Optionally, attach it to a video element if needed
+      // Use cameraStream for gesture artworks
     } catch (err) {
       console.error('Camera access error:', err);
     }
