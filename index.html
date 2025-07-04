@@ -213,9 +213,14 @@
 
         // 3. Open Twitter share dialog
         const playlistUrl = window.location.href;
-        const tweetText = encodeURIComponent("Check out these curated interactive experiences on Olta ! " + playlistUrl);
+        const tweetText = encodeURIComponent("Check out these curated interactive experiences on Olta! " + playlistUrl);
         const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
         window.open(twitterUrl, '_blank');
+
+        // 4. Prompt user to attach the image
+        setTimeout(() => {
+          alert('Your artwork snapshot has been downloaded. Please attach it to your tweet!');
+        }, 500);
       });
     });
 

@@ -428,6 +428,14 @@ function setCurrentProjectIdGlobal() {
 // Detect mobile device
 const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+// Filter out 'Shadows Touch Accross Time' from staticArtworks on mobile
+let filteredStaticArtworks = staticArtworks;
+if (isMobile) {
+  filteredStaticArtworks = staticArtworks.filter(
+    (art) => !(art.name === "Shadows Touch Accross Time" && art.creator?.profile?.name === "Epok.Tech")
+  );
+}
+
 // Only request camera access once on mobile
 let cameraStream = null;
 async function requestCameraOnce() {
@@ -481,8 +489,8 @@ async function requestCameraOnce() {
     }
   });
 
-  // Merge static artworks with dynamic ones
-  projects = [...staticArtworks, ...filteredProjects];
+  // Merge filtered static and dynamic artworks
+  projects = [...filteredStaticArtworks, ...filteredProjects];
   options.projects = projects.map((p) => p.id);
 
   renderOptions();
