@@ -109,6 +109,7 @@ previous.addEventListener("click", () => {
   viewer.setAttribute("url", getUrl());
   previous.classList = "previous spin";
   disableButtons();
+  setCurrentProjectIdGlobal();
 });
 
 // change button
@@ -130,6 +131,7 @@ change.addEventListener("click", () => {
   viewer.setAttribute("url", getUrl());
   change.classList = "change spin";
   disableButtons();
+  setCurrentProjectIdGlobal();
 });
 
 const optionsEl = document.querySelector("dialog.options");
@@ -268,6 +270,7 @@ function updateProjectInterval(seconds) {
     viewer.setAttribute("url", getUrl());
     change.classList = "change spin";
     disableButtons();
+    setCurrentProjectIdGlobal();
   }, seconds * 1000);
 
   updateEditionInterval(options.timing.edition);
@@ -413,13 +416,20 @@ function alignQrCodeToRight() {
   }
 }
 
+function setCurrentProjectIdGlobal() {
+  const proj = currentProject();
+  if (proj && proj.id) {
+    window.currentProjectId = proj.id;
+    // Dispatch a custom event so index.html can listen for artwork changes
+    window.dispatchEvent(new CustomEvent('artworkChanged', { detail: { id: proj.id } }));
+  }
+}
+
 (async function fetchProjects() {
   const resp = await queryfetcher(
     "https://gateway-arbitrum.network.thegraph.com/api/subgraphs/id/3eGGTUNpbmzMZx2UrHyDzWTKaQeawGpPPUuJQSxg3LZQ",
     getProjects()
   );
-
-  optionsEl.showModal();
 
   // Filtering out the projects
   let filteredProjects = resp.projects.filter(
@@ -455,6 +465,7 @@ function alignQrCodeToRight() {
   seed = getRandSeed(seed, projects[current].editionSize);
   viewer.setAttribute("url", getUrl());
   disableButtons();
+  setCurrentProjectIdGlobal();
 })();
 
 function colorTrace(msg, color) {
@@ -495,7 +506,7 @@ document.addEventListener('fullscreenchange', () => {
 const firebaseConfig = {
   apiKey: "AIzaSyDDEb8UeIk6D0pxl_IWEMADqhLz4ZEsA2g",
   authDomain: "olta-70b79.firebaseapp.com",
-  databaseURL: "https://olta-70b79-default-rtdb.firebaseio.com",
+  databaseURL: "https://olta-70b79-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "olta-70b79",
   storageBucket: "olta-70b79.appspot.com",
   messagingSenderId: "1009481982599",

@@ -7,7 +7,7 @@
 }
 
 body {
-  font-family: "Neue Machina";
+  font-family: 'Inter', 'Helvetica Neue', Arial, system-ui, sans-serif;
   margin: 0;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -256,28 +256,93 @@ button:disabled {
   cursor: url("./assets/cursor.png") 15 15, pointer;
 }
 
-#viewer-counter {
+#top-status-bar {
   position: fixed;
   top: 2rem;
   right: 2rem;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.9rem;
-  font-weight: bold;
-  z-index: 10;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: rgba(20, 20, 20, 0.18);
+  border-radius: 1.1rem;
+  padding: 0.13rem 0.7rem;
+  box-shadow: none;
+  backdrop-filter: blur(6px);
+  z-index: 20;
+  font-size: 1rem;
+  height: 1.2rem;
+  min-height: 1.2rem;
 }
 
-#viewer-counter:hover {
-  background: rgba(0, 0, 0, 0.9);
-  transform: scale(1.05);
+#top-status-bar,
+#top-status-bar * {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+#viewer-counter,
+#heart-count {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 0.01em;
 }
 
 #viewer-count {
-  color: #00ff88;
-  font-weight: 900;
+  color: #7be7b8;
+  font-weight: 500;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
+#heart-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #ff4b7d;
+  margin: 0;
+  margin-right: -3.5rem;
+  padding: 0;
+  transition: transform 0.15s cubic-bezier(.4, 2, .6, 1), color 0.15s;
+  outline: none;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+}
+
+#heart-btn:hover,
+#heart-btn:focus {
+  color: #ff1a5c;
+  transform: scale(1);
+}
+
+.status-divider {
+  display: inline-block;
+  width: 1px;
+  height: 1.1em;
+  background: rgba(255, 255, 255, 0.33);
+  margin: 0 0.3rem;
+  border-radius: 1px;
+  vertical-align: middle;
+}
+
+.status-icon svg,
+#heart-btn svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-bottom: 2px;
+}
+
+#heart-btn svg {
+  transition: transform 0.15s cubic-bezier(.4, 2, .6, 1), fill 0.15s;
+}
+
+#heart-btn:hover svg,
+#heart-btn:focus svg {
+  transform: scale(1.12);
+  fill: #ff1a5c;
+}
+
+#viewer-counter {
+  color: #fff !important;
 }

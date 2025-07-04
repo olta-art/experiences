@@ -28,58 +28,6 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-  <script>
-    // Your Firebase config here
-    const firebaseConfig = {
-      apiKey: "AIzaSyDDEb8UeIk6D0pxl_IWEMADqhLz4ZEsA2g",
-      authDomain: "olta-70b79.firebaseapp.com",
-      databaseURL: "https://olta-70b79-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "olta-70b79",
-      storageBucket: "olta-70b79.appspot.com",
-      messagingSenderId: "1009481982599",
-      appId: "1:1009481982599:web:c625bd9f64d9625fae8e22"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // Generate unique viewer ID
-    const viewerId = 'viewer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-
-    // On page load - add this viewer
-    const viewerRef = db.ref('viewers/' + viewerId);
-    viewerRef.set({
-      timestamp: Date.now(),
-      userAgent: navigator.userAgent
-    });
-
-    // Remove this viewer when they leave
-    viewerRef.onDisconnect().remove();
-
-    // Display count
-    db.ref('viewers').on('value', (snapshot) => {
-      const count = snapshot.numChildren();
-      const viewerCountElement = document.getElementById('viewer-count');
-      if (viewerCountElement) {
-        viewerCountElement.textContent = count;
-      }
-      console.log('Live viewers:', count);
-    });
-
-    // Clean up old viewers (older than 5 minutes)
-    setInterval(() => {
-      const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
-      db.ref('viewers').once('value').then((snapshot) => {
-        snapshot.forEach((childSnapshot) => {
-          const viewer = childSnapshot.val();
-          if (viewer && viewer.timestamp < fiveMinutesAgo) {
-            childSnapshot.ref.remove();
-          }
-        });
-      });
-    }, 60000); // Check every minute
-  </script>
 </head>
 
 <body>
@@ -111,7 +59,131 @@
     </div>
     <form id="options-form"></form>
   </dialog>
-  <div id="viewer-counter">👥 Live viewers: <span id="viewer-count">0</span></div>
+  <div id="top-status-bar">
+    <span id="viewer-counter">
+      <span class="status-icon" aria-label="Live viewers">
+        <!-- Modern user SVG icon -->
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="7" r="4" stroke="#7be7b8" stroke-width="1.5" />
+          <ellipse cx="10" cy="15" rx="7" ry="3" stroke="#7be7b8" stroke-width="1.5" />
+        </svg>
+      </span>
+      Live viewers: <span id="viewer-count">0</span>
+    </span>
+    <span class="status-divider"></span>
+    <button id="heart-btn" aria-label="Show appreciation">❤️</button>
+    <span id="heart-count">0</span>
+  </div>
+
+  <script>
+    // Your Firebase config here
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDEb8UeIk6D0pxl_IWEMADqhLz4ZEsA2g",
+      authDomain: "olta-70b79.firebaseapp.com",
+      databaseURL: "https://olta-70b79-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "olta-70b79",
+      storageBucket: "olta-70b79.appspot.com",
+      messagingSenderId: "1009481982599",
+      appId: "1:1009481982599:web:c625bd9f64d9625fae8e22"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Generate unique viewer ID
+    const viewerId = 'viewer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    console.log('New viewer ID:', viewerId);
+
+    // On page load - add this viewer
+    const viewerRef = db.ref('viewers/' + viewerId);
+    viewerRef.set({
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent
+    }).then(() => {
+      console.log('✅ Viewer added to database:', viewerId);
+    }).catch((error) => {
+      console.error('❌ Error adding viewer:', error);
+    });
+
+    // Remove this viewer when they leave
+    viewerRef.onDisconnect().remove().then(() => {
+      console.log('✅ Disconnect handler set for viewer:', viewerId);
+    });
+
+    // Display count
+    db.ref('viewers').on('value', (snapshot) => {
+      const count = snapshot.numChildren();
+      const viewerCountElement = document.getElementById('viewer-count');
+      if (viewerCountElement) {
+        viewerCountElement.textContent = count;
+        console.log('📊 Live viewers updated:', count);
+
+        // Show all current viewers for debugging
+        const viewers = [];
+        snapshot.forEach((childSnapshot) => {
+          viewers.push(childSnapshot.key);
+        });
+        console.log('👥 Current viewers:', viewers);
+      } else {
+        console.error('❌ Viewer count element not found!');
+      }
+    }, (error) => {
+      console.error('❌ Error reading viewer count:', error);
+    });
+
+    // Clean up old viewers (older than 5 minutes)
+    setInterval(() => {
+      const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+      db.ref('viewers').once('value').then((snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          const viewer = childSnapshot.val();
+          if (viewer && viewer.timestamp < fiveMinutesAgo) {
+            childSnapshot.ref.remove();
+            console.log('🧹 Cleaned up old viewer:', childSnapshot.key);
+          }
+        });
+      });
+    }, 60000); // Check every minute
+
+    // --- HEART REACTION LOGIC ---
+    let currentHeartUnsubscribe = null;
+
+    function getCurrentArtworkId() {
+      if (window.currentProjectId) return window.currentProjectId;
+      return 'static-4'; // fallback
+    }
+
+    function listenForHeartCount(artworkId) {
+      // Remove previous listener if any
+      if (currentHeartUnsubscribe) currentHeartUnsubscribe();
+      const heartRef = db.ref('reactions/' + artworkId + '/heart');
+      const handler = (snapshot) => {
+        const count = snapshot.val() || 0;
+        const heartCountElement = document.getElementById('heart-count');
+        if (heartCountElement) heartCountElement.textContent = count;
+      };
+      heartRef.on('value', handler);
+      // Provide a way to unsubscribe
+      currentHeartUnsubscribe = () => heartRef.off('value', handler);
+    }
+
+    document.getElementById('heart-btn').addEventListener('click', () => {
+      const artworkId = getCurrentArtworkId();
+      const heartRef = db.ref('reactions/' + artworkId + '/heart');
+      heartRef.transaction((current) => (current || 0) + 1);
+    });
+
+    // Initial listen for first artwork
+    listenForHeartCount(getCurrentArtworkId());
+
+    // Listen for artwork changes from main.js
+    window.addEventListener('artworkChanged', (e) => {
+      const newId = e.detail.id;
+      listenForHeartCount(newId);
+    });
+    // --- END HEART REACTION LOGIC ---
+  </script>
 </body>
 
 </html>
