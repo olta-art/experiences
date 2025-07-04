@@ -425,7 +425,25 @@ function setCurrentProjectIdGlobal() {
   }
 }
 
+// Detect mobile device
+const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+// Only request camera access once on mobile
+let cameraStream = null;
+async function requestCameraOnce() {
+  if (!cameraStream && isMobile) {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // You can now use cameraStream for gesture artworks
+      // Optionally, attach it to a video element if needed
+    } catch (err) {
+      console.error('Camera access error:', err);
+    }
+  }
+}
+
 (async function fetchProjects() {
+  await requestCameraOnce();
   const resp = await queryfetcher(
     "https://gateway-arbitrum.network.thegraph.com/api/subgraphs/id/3eGGTUNpbmzMZx2UrHyDzWTKaQeawGpPPUuJQSxg3LZQ",
     getProjects()
@@ -435,6 +453,13 @@ function setCurrentProjectIdGlobal() {
   let filteredProjects = resp.projects.filter(
     (project) => !["Loop", "Don't Scroll", "Totems", "FORM", "Fragmented Existence", "Choose your Words", "Lesson 1", "The Drop", "THE DROP", "Portal | One"].includes(project.name)
   );
+
+  // On mobile, filter out 'Shadows Touch Accross Time' by Epok.Tech
+  if (isMobile) {
+    filteredProjects = filteredProjects.filter(
+      (project) => !(project.name === "Shadows Touch Accross Time" && project.creator?.profile?.name === "Epok.Tech")
+    );
+  }
 
   // Reorder projects: move "Sacred Moth" after "Peer into the Flow"
   const peerIntoFlowIndex = filteredProjects.findIndex(p => p.name === "Peer into the Flow");
@@ -472,16 +497,7 @@ function colorTrace(msg, color) {
   console.log("%c" + msg, "color:" + color + ";font-weight:bold;");
 }
 
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    const video = document.createElement('video');
-    video.srcObject = stream;
-    video.autoplay = true;
-    // Process video for motion detection
-  })
-  .catch(err => {
-    console.error('Camera access error:', err);
-  });
+// For gesture artworks, use cameraStream instead of requesting again
 
 // fullscreen button
 const fullscreenBtn = document.querySelector(".fullscreen");
