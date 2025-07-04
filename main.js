@@ -434,6 +434,7 @@ if (isMobile) {
   filteredStaticArtworks = staticArtworks.filter(
     (art) => !(art.name === "Shadows Touch Accross Time" && art.creator?.profile?.name === "Epok.Tech")
   );
+  options.display.qr = false;
 }
 
 // Only request camera access once on mobile
