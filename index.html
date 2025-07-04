@@ -218,6 +218,23 @@
         window.open(twitterUrl, '_blank');
       });
     });
+
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    async function requestCameraOnce() {
+      if (!cameraStream && !isMobile) { // Only request on non-mobile
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          // Use cameraStream for gesture artworks
+        } catch (err) {
+          console.error('Camera access error:', err);
+        }
+      }
+    }
+
+    if (isMobile) {
+      // Show a message: "Gesture control is only available on desktop devices."
+    }
   </script>
 </body>
 
