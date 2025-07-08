@@ -23,9 +23,6 @@
 
   <a class="twitter-timeline" href="https://twitter.com/oltaArt?ref_src=twsrc%5Etfw">Tweets by you</a>
   <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-
-
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -72,11 +69,17 @@
       Live viewers: <span id="viewer-count">0</span>
     </span>
     <span class="status-divider"></span>
-    <button id="heart-btn" aria-label="Show appreciation">❤️</button>
+    <button id="heart-btn" aria-label="Show appreciation">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          fill="currentColor" stroke="currentColor" stroke-width="0.5" />
+      </svg>
+    </button>
     <span id="heart-count">0</span>
     <span class="status-divider"></span>
     <button id="share-btn" aria-label="Share"
-      style="background: none; border: none; cursor: pointer; padding: 0 0.1rem; margin-left: 0.3rem; display: flex; align-items: center;">
+      style="background: none; border: none; cursor: pointer; padding: 0 0.1rem; margin-left: 0.3rem; display: flex; align-items: center; gap: 0.3rem;">
       <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M15 8V5a3 3 0 0 0-6 0v3" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round"
           stroke-linejoin="round" />
@@ -86,8 +89,22 @@
         <path d="M10 12l-2-2m2 2l2-2" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round"
           stroke-linejoin="round" />
       </svg>
+      <span style="color: #ffffff; font-size: 0.9rem; font-weight: 500;">Share</span>
     </button>
   </div>
+
+  <!-- Canvas Navigation Buttons -->
+  <button id="canvas-nav-prev" class="canvas-nav-btn canvas-nav-left" aria-label="Previous project">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+
+  <button id="canvas-nav-next" class="canvas-nav-btn canvas-nav-right" aria-label="Next project">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
 
   <script>
     // Your Firebase config here
@@ -240,6 +257,78 @@
     if (isMobile) {
       // Show a message: "Gesture control is only available on desktop devices."
     }
+
+    // Canvas Navigation buttons
+    document.getElementById('canvas-nav-prev').addEventListener('click', (e) => {
+      console.log('Previous button clicked!');
+      e.preventDefault();
+      e.stopPropagation();
+      // Trigger the same action as the previous button
+      const previousBtn = document.querySelector('.previous');
+      if (previousBtn && !previousBtn.disabled) {
+        console.log('Triggering previous button click');
+        previousBtn.click();
+      } else {
+        console.log('Previous button not found or disabled');
+      }
+    });
+
+    document.getElementById('canvas-nav-next').addEventListener('click', (e) => {
+      console.log('Next button clicked!');
+      e.preventDefault();
+      e.stopPropagation();
+      // Trigger the same action as the next button
+      const nextBtn = document.querySelector('.change');
+      if (nextBtn && !nextBtn.disabled) {
+        console.log('Triggering next button click');
+        nextBtn.click();
+      } else {
+        console.log('Next button not found or disabled');
+      }
+    });
+
+    // Update navigation button states when projects change
+    function updateNavButtonStates() {
+      const prevBtn = document.getElementById('canvas-nav-prev');
+      const nextBtn = document.getElementById('canvas-nav-next');
+      const previousBtn = document.querySelector('.previous');
+      const nextBtnMain = document.querySelector('.change');
+
+      if (prevBtn && previousBtn) {
+        prevBtn.disabled = previousBtn.disabled;
+      }
+      if (nextBtn && nextBtnMain) {
+        nextBtn.disabled = nextBtnMain.disabled;
+      }
+    }
+
+    // Listen for artwork changes to update button states
+    window.addEventListener('artworkChanged', updateNavButtonStates);
+
+    // Initial state update
+    setTimeout(updateNavButtonStates, 1000);
+
+    // Ensure navigation buttons are properly set up after DOM loads
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Setting up canvas navigation buttons...');
+
+      const prevBtn = document.getElementById('canvas-nav-prev');
+      const nextBtn = document.getElementById('canvas-nav-next');
+
+      if (prevBtn) {
+        console.log('Previous button found:', prevBtn);
+        prevBtn.style.pointerEvents = 'auto';
+      } else {
+        console.error('Previous button not found!');
+      }
+
+      if (nextBtn) {
+        console.log('Next button found:', nextBtn);
+        nextBtn.style.pointerEvents = 'auto';
+      } else {
+        console.error('Next button not found!');
+      }
+    });
   </script>
 </body>
 

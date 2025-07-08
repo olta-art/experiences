@@ -112,16 +112,36 @@ export class Details extends HTMLElement {
     }
     if (name === "qrcode" && newValue) {
       const slot = this.shadowRoot.querySelector('slot[name="qrcode"]');
+      
+      // Create a container for the QR code
+      const qrContainer = document.createElement("div");
+      qrContainer.classList.add("qrcode-container");
+      
+      // Create the QR code element
       const qrEl = document.createElement("div");
       qrEl.classList.add("qrcode");
+      
+      // Generate the QR code
       new QRCode(qrEl, {
         text: newValue,
         width: 128,
         height: 128,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
       });
 
+      // Make the QR code clickable
+      qrContainer.style.cursor = "pointer";
+      qrContainer.title = "Click to visit artist website";
+      qrContainer.addEventListener("click", () => {
+        window.open(newValue, "_blank");
+      });
+
+      // Clear the slot and add the new QR code
       slot.innerHTML = "";
-      slot.append(qrEl);
+      qrContainer.appendChild(qrEl);
+      slot.append(qrContainer);
     }
   }
 }

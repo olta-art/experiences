@@ -232,6 +232,43 @@ button:disabled {
   border-width: 10px !important;
 }
 
+/* QR Code styling */
+.qrcode-container {
+  display: inline-block;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.qrcode-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.qrcode {
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Add a subtle glow effect to indicate it's clickable */
+.qrcode-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 8px;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  transition: box-shadow 0.3s ease;
+  pointer-events: none;
+}
+
+.qrcode-container:hover::after {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+}
+
 .fullscreen {
   z-index: 2;
   position: fixed;
@@ -263,15 +300,14 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  background: rgba(20, 20, 20, 0.18);
+  background: rgba(10, 10, 10, 0.18);
   border-radius: 1.1rem;
-  padding: 0.13rem 0.7rem;
+  padding: 0.2rem 0.5rem;
   box-shadow: none;
   backdrop-filter: blur(6px);
   z-index: 20;
-  font-size: 1rem;
-  height: 1.2rem;
-  min-height: 1.2rem;
+  font-size: 0.5rem;
+  min-height: 0.2rem;
 }
 
 #top-status-bar,
@@ -297,40 +333,51 @@ button:disabled {
 #heart-btn {
   background: none;
   border: none;
-  font-size: 1.1rem;
   cursor: pointer;
   color: #ff4b7d;
   margin: 0;
-  margin-right: -3.5rem;
   padding: 0;
   transition: transform 0.15s cubic-bezier(.4, 2, .6, 1), color 0.15s;
   outline: none;
   box-shadow: none;
   display: flex;
   align-items: center;
+  width: 18px;
+  height: 18px;
 }
 
 #heart-btn:hover,
 #heart-btn:focus {
   color: #ff1a5c;
-  transform: scale(1);
+  transform: scale(1.1);
+}
+
+#heart-btn svg {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.2s cubic-bezier(.4, 2, .6, 1);
+}
+
+#heart-btn:hover svg,
+#heart-btn:focus svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 4px rgba(255, 75, 125, 0.6));
 }
 
 .status-divider {
   display: inline-block;
   width: 1px;
-  height: 1.1em;
+  height: 1.2em;
   background: rgba(255, 255, 255, 0.33);
-  margin: 0 0.3rem;
+  margin: 0;
   border-radius: 1px;
-  vertical-align: middle;
+  align-self: center;
 }
 
 .status-icon svg,
 #heart-btn svg {
   display: inline-block;
   vertical-align: middle;
-  margin-bottom: 2px;
 }
 
 #heart-btn svg {
@@ -345,6 +392,78 @@ button:disabled {
 
 #viewer-counter {
   color: #fff !important;
+}
+
+#share-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+  height: 18px;
+}
+
+#share-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Canvas Navigation buttons */
+.canvas-nav-btn {
+  position: fixed !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: rgba(20, 20, 20, 0.8) !important;
+  border: 2px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  color: #ffffff !important;
+  padding: 1rem !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 60px !important;
+  height: 60px !important;
+  transition: all 0.3s ease !important;
+  backdrop-filter: blur(10px) !important;
+  z-index: 1000 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.canvas-nav-btn:hover {
+  background: rgba(20, 20, 20, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  color: #7be7b8 !important;
+  transform: translateY(-50%) scale(1.1) !important;
+}
+
+.canvas-nav-btn:disabled {
+  color: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(20, 20, 20, 0.1) !important;
+  cursor: not-allowed !important;
+  transform: translateY(-50%) scale(0.9) !important;
+}
+
+.canvas-nav-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.canvas-nav-left {
+  left: 2rem;
+}
+
+.canvas-nav-right {
+  right: 2rem;
 }
 
 dialog.options {

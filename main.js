@@ -13,7 +13,7 @@ const staticArtworks = [
     lastAddedVersion: {
       animation: { url: "https://epok.tech/shadows-touch-across-time-demo/" }
     },
-    qrCodeUrl: "https://yourdomain.com/qr/artwork1"
+    qrCodeUrl: "https://epok.tech"
   },
 
   {
@@ -26,7 +26,7 @@ const staticArtworks = [
     lastAddedVersion: {
       animation: { url: "https://a7frsrbb25jdkt6rkwxhj6y44eh3rzyiffo6ait3kypjm7fqh5lq.arweave.net/B8sZRCHXUjVP0VWudPsc4Q-45wgpXeAie1YelnywP1c/" }
     },
-    qrCodeUrl: "https://yourdomain.com/qr/artwork1"
+    qrCodeUrl: "https://xvi-jojo.com"
   },
 
   {
@@ -39,7 +39,7 @@ const staticArtworks = [
     lastAddedVersion: {
       animation: { url: "https://dissolvi-olta.vercel.app/" }
     },
-    qrCodeUrl: "https://yourdomain.com/qr/artwork1"
+    qrCodeUrl: "https://omar-lobato.com"
   }
   
 
@@ -318,13 +318,49 @@ function disableButtons() {
       if (currentProject().qrCodeUrl) {
         details.setAttribute("qrcode", currentProject().qrCodeUrl);
       } else {
-        details.setAttribute(
-          "qrcode",
-          `https://metamask.app.link/dapp/nft.olta.art/project/${
-            currentProject().id
-          }`
-        );
+        // Fallback to the actual artwork URL if no specific QR code URL is set
+        const artworkUrl = currentProject().lastAddedVersion?.animation?.url;
+        if (artworkUrl) {
+          details.setAttribute("qrcode", artworkUrl);
+        } else {
+          // Final fallback to Olta project page
+          details.setAttribute(
+            "qrcode",
+            `https://nft.olta.art/project/${currentProject().id}`
+          );
+        }
       }
+    }
+    
+    // On mobile, add a "Visit Artist" button since QR codes are disabled
+    if (isMobile && currentProject().qrCodeUrl) {
+      // Add a mobile-friendly artist link button
+      const mobileArtistLink = document.createElement('a');
+      mobileArtistLink.href = currentProject().qrCodeUrl;
+      mobileArtistLink.target = '_blank';
+      mobileArtistLink.textContent = 'Visit Artist';
+      mobileArtistLink.style.cssText = `
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        background: rgba(255, 255, 255, 0.9);
+        color: black;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        text-decoration: none;
+        font-weight: bold;
+        z-index: 100;
+        font-size: 0.9rem;
+      `;
+      
+      // Remove any existing mobile artist link
+      const existingLink = document.querySelector('.mobile-artist-link');
+      if (existingLink) {
+        existingLink.remove();
+      }
+      
+      mobileArtistLink.classList.add('mobile-artist-link');
+      document.body.appendChild(mobileArtistLink);
     }
 
     alignQrCodeToRight();
@@ -397,7 +433,7 @@ function currentProject() {
 function alignQrCodeToRight() {
   // Insert the project symbol property inside the array
   // so it's QR code and Artist Name will be aligned to the right
-  const projectsToAlignRight = []; // Removed "PEER-INTO-THE-FLOW"
+  const projectsToAlignRight = ["PEER-INTO-THE-FLOW"]; // Added back "PEER-INTO-THE-FLOW"
 
   let oDetails = document.getElementsByClassName("o-details")[0];
   let detailsPanel = details.shadowRoot.getElementById("details-panel");
@@ -489,11 +525,30 @@ async function requestCameraOnce() {
     filteredProjects.splice(insertIndex, 0, sacredMoth);
   }
 
-  // Adding new URLs for the QR code to specific projects
+  // Adding QR code URLs for specific projects to link to artist websites
   filteredProjects.forEach((project) => {
-    if (project.name === "Totems") {
-      project.qrCodeUrl =
-        "https://arweave.net/_mg8ZW1miexH22bD-LdiABnGH8n5X5smYYXbbDKocpA/?id=1&address=0xac771ff04287872ea43263703b43ad5b801e8a1e&seed=1";
+    // Map project names to artist websites and social media
+    const artistWebsites = {
+      "Totems": "https://arweave.net/_mg8ZW1miexH22bD-LdiABnGH8n5X5smYYXbbDKocpA/?id=1&address=0xac771ff04287872ea43263703b43ad5b801e8a1e&seed=1",
+      "Peer into the Flow": "https://twitter.com/peerintotheflow",
+      "Sacred Moth": "https://twitter.com/sacredmoth_art",
+      "FIELDS": "https://twitter.com/fields_art",
+      "Morphed Radiance": "https://twitter.com/morphed_radiance",
+      "Your New Project": "https://artist-website.com",
+      // For projects without specific artist websites, link to their artwork directly
+      // or to a general portfolio/collection page
+    };
+    
+    if (artistWebsites[project.name]) {
+      project.qrCodeUrl = artistWebsites[project.name];
+    } else {
+      // For projects without specific artist websites, create a more meaningful QR code
+      // that links to the actual artwork or a collection page
+      const artworkUrl = project.lastAddedVersion?.animation?.url;
+      if (artworkUrl) {
+        // Use the actual artwork URL as the QR code
+        project.qrCodeUrl = artworkUrl;
+      }
     }
   });
 
