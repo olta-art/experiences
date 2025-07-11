@@ -14,7 +14,6 @@ export class Viewer extends HTMLElement {
       <iframe 
         scrolling="no"
         src="" 
-        sandbox="allow-scripts allow-pointer-lock" 
         allow="camera *; fullscreen *; accelerometer *; gamepad *; 
         gyroscope *; microphone *; xr-spatial-tracking *;"
         >
@@ -36,6 +35,7 @@ export class Viewer extends HTMLElement {
         width: calc(100% + 1em);
         height: calc(100% + 1em);
         border: none;
+        pointer-events: none !important;
       }
     </style>
   `);
@@ -46,36 +46,14 @@ export class Viewer extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    console.log(name, newValue);
+    console.log('[o-viewer] attributeChangedCallback', { name, oldValue, newValue });
 
     if (name === "url" && newValue) {
-      const oldIframes = this.shadowRoot.querySelectorAll("iframe");
-      oldIframes.forEach((f) => (f.className = "old"));
-
-      const template = ranger(`
-        <iframe
-          scrolling="no"
-          src="${newValue}"
-          style="opacity: 0.0;"
-          class="new"
-          sandbox="allow-scripts allow-pointer-lock allow-same-origin"
-          allow="camera *; fullscreen *; accelerometer *; gamepad *; gyroscope *; microphone *; xr-spatial-tracking *;"
-        />
-      `);
-
-      this.shadowRoot.appendChild(template.cloneNode(true));
-
-      // HACK: no way of knowing content loaded without post-message
-      setTimeout(() => {
-        const newIframe = this.shadowRoot.querySelector(".new");
-        console.log(newIframe);
-        newIframe.style = "opacity: 1;";
-
-        setTimeout(() => {
-          const oldIframes = this.shadowRoot.querySelectorAll(".old");
-          oldIframes.forEach((f) => f.remove());
-        }, 500);
-      }, 2000);
+      const iframe = this.shadowRoot.querySelector("iframe");
+      if (iframe) {
+        iframe.src = newValue;
+        iframe.style.opacity = "1";
+      }
     }
     // updateStyle(this);
   }

@@ -22,6 +22,7 @@ body {
   /* HACK */
   width: 100vw;
   overflow: hidden;
+  isolation: isolate;
 }
 
 dialog {
@@ -175,15 +176,11 @@ button:disabled {
 }
 
 .previous {
-  grid-area: i;
-  justify-self: end;
-  align-self: end;
+  /* Remove grid positioning - now handled by top-left-nav */
 }
 
 .change {
-  grid-area: h;
-  justify-self: center;
-  align-self: end;
+  /* Remove grid positioning - now handled by top-left-nav */
 }
 
 .options {
@@ -414,58 +411,6 @@ button:disabled {
   flex-shrink: 0;
 }
 
-/* Canvas Navigation buttons */
-.canvas-nav-btn {
-  position: fixed !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  background: rgba(20, 20, 20, 0.8) !important;
-  border: 2px solid rgba(255, 255, 255, 0.6) !important;
-  border-radius: 50% !important;
-  cursor: pointer !important;
-  color: #ffffff !important;
-  padding: 1rem !important;
-  margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 60px !important;
-  height: 60px !important;
-  transition: all 0.3s ease !important;
-  backdrop-filter: blur(10px) !important;
-  z-index: 1000 !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-.canvas-nav-btn:hover {
-  background: rgba(20, 20, 20, 0.6) !important;
-  border-color: rgba(255, 255, 255, 0.6) !important;
-  color: #7be7b8 !important;
-  transform: translateY(-50%) scale(1.1) !important;
-}
-
-.canvas-nav-btn:disabled {
-  color: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  background: rgba(20, 20, 20, 0.1) !important;
-  cursor: not-allowed !important;
-  transform: translateY(-50%) scale(0.9) !important;
-}
-
-.canvas-nav-btn svg {
-  width: 24px;
-  height: 24px;
-}
-
-.canvas-nav-left {
-  left: 2rem;
-}
-
-.canvas-nav-right {
-  right: 2rem;
-}
-
 dialog.options {
   position: fixed;
   top: 50%;
@@ -479,4 +424,273 @@ dialog.options {
   background: rgba(255, 255, 255, 255);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0);
   z-index: 100;
+}
+
+
+
+/* Carousel Navigation buttons - Minimal, Modern Style */
+.carousel-nav-btn {
+  position: fixed !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: rgba(30, 30, 30, 0.7) !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: #fff !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.2rem !important;
+  z-index: 20 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12) !important;
+  transition: background 0.2s, transform 0.15s, color 0.2s;
+  opacity: 0.92 !important;
+}
+
+.carousel-nav-btn svg {
+  width: 32px;
+  height: 32px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  transition: transform 0.15s, stroke 0.2s;
+}
+
+.carousel-nav-btn:hover,
+.carousel-nav-btn:focus {
+  background: #7be7b8 !important;
+  color: #111 !important;
+  transform: translateY(-50%) scale(1.08) !important;
+  opacity: 1 !important;
+}
+
+.carousel-nav-btn:active {
+  background: #222 !important;
+  color: #fff !important;
+  transform: translateY(-50%) scale(0.97) !important;
+}
+
+.carousel-nav-left {
+  left: 1.2rem !important;
+}
+
+.carousel-nav-right {
+  right: 1.2rem !important;
+}
+
+.carousel-nav-btn:disabled {
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .carousel-nav-btn {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .carousel-nav-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .carousel-nav-left {
+    left: 0.5rem !important;
+  }
+
+  .carousel-nav-right {
+    right: 0.5rem !important;
+  }
+}
+
+/* Click feedback animation */
+.carousel-nav-btn.clicked {
+  animation: buttonClickFeedback 0.6s cubic-bezier(.4, 2, .6, 1) !important;
+}
+
+@keyframes buttonClickFeedback {
+  0% {
+    transform: translateY(-50%) scale(1);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+
+  15% {
+    transform: translateY(-50%) scale(0.85);
+    background: rgba(123, 231, 184, 0.8);
+    border-color: rgba(123, 231, 184, 1);
+    box-shadow: 0 8px 25px rgba(123, 231, 184, 0.6), 0 0 0 2px rgba(123, 231, 184, 0.3);
+  }
+
+  30% {
+    transform: translateY(-50%) scale(1.1);
+    background: rgba(123, 231, 184, 0.6);
+    border-color: rgba(123, 231, 184, 0.8);
+  }
+
+  100% {
+    transform: translateY(-50%) scale(1);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* Navigation feedback indicator */
+.nav-feedback {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: rgba(123, 231, 184, 0.9) !important;
+  color: #000 !important;
+  padding: 1rem 2rem !important;
+  border-radius: 2rem !important;
+  font-weight: bold !important;
+  font-size: 1.2rem !important;
+  z-index: 2147483648 !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.nav-feedback.show {
+  opacity: 1 !important;
+  animation: navFeedbackPulse 1.5s ease-out !important;
+}
+
+@keyframes navFeedbackPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+
+  20% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+
+  80% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* More specific hover selectors */
+button.carousel-nav-btn:hover,
+button.carousel-nav-btn:focus,
+#nav-prev-btn:hover,
+#nav-prev-btn:focus,
+#nav-next-btn:hover,
+#nav-next-btn:focus {
+  background: #ff0000 !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+  transform: translateY(-50%) scale(1.1) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 0 3px rgba(255, 255, 255, 0.5) !important;
+  opacity: 1 !important;
+}
+
+.carousel-nav-btn:active {
+  transform: translateY(-50%) scale(0.98) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.carousel-nav-btn:disabled {
+  color: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  cursor: not-allowed !important;
+  transform: translateY(-50%) scale(0.9) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.carousel-nav-btn svg {
+  width: 28px;
+  height: 28px;
+  transition: all 0.3s cubic-bezier(.4, 2, .6, 1);
+  stroke: currentColor;
+  stroke-width: 3;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.carousel-nav-btn:hover svg,
+.carousel-nav-btn:focus svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+  stroke: #000000 !important;
+}
+
+.carousel-nav-btn:active svg {
+  transform: scale(0.95);
+}
+
+.carousel-nav-left {
+  left: 2rem !important;
+}
+
+.carousel-nav-right {
+  right: 2rem !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .carousel-nav-btn {
+    width: 60px !important;
+    height: 60px !important;
+    padding: 0.8rem !important;
+    border-width: 2px !important;
+  }
+
+  .carousel-nav-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .carousel-nav-left {
+    left: 1rem;
+  }
+
+  .carousel-nav-right {
+    right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-nav-btn {
+    width: 55px !important;
+    height: 55px !important;
+    padding: 0.7rem !important;
+    border-width: 2px !important;
+  }
+
+  .carousel-nav-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .carousel-nav-left {
+    left: 0.5rem;
+  }
+
+  .carousel-nav-right {
+    right: 0.5rem;
+  }
+
+}
+
+
+iframe {
+  pointer-events: none !important;
 }

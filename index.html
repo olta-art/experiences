@@ -13,24 +13,44 @@
   <script src="./main.js" type="module"></script>
 
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C3C3NKFP2L"></script>
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-C3C3NKFP2L"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-C3C3NKFP2L');
-  </script>
+  </script> -->
 
-  <a class="twitter-timeline" href="https://twitter.com/oltaArt?ref_src=twsrc%5Etfw">Tweets by you</a>
-  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <!-- <a class="twitter-timeline" href="https://twitter.com/oltaArt?ref_src=twsrc%5Etfw">Tweets by you</a> -->
+  <!-- <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 
 <body>
+  <!-- Navigation feedback indicator -->
+  <div id="nav-feedback" class="nav-feedback"></div>
+
+  <!-- Carousel Navigation Buttons - Positioned directly in body like top status bar -->
+  <button id="nav-prev-btn" class="carousel-nav-btn carousel-nav-left" aria-label="Previous project">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+  <button id="nav-next-btn" class="carousel-nav-btn carousel-nav-right" aria-label="Next project">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </button>
+
   <h1 id="loading">LOADING</h1>
   <button class="fullscreen">⛶</button>
+
+  <!-- Hidden navigation buttons for main.js functionality -->
+  <button class="change" style="display: none;">Next Project</button>
+  <button class="previous" style="display: none;">Previous Project</button>
+
   <template id="o-details">
     <div class="flex details-panel" part="flex" id="details-panel">
       <p part="qrcode" class="qrcodecanvas">
@@ -51,8 +71,6 @@
   </template>
   <dialog class="options">
     <div class="button-container">
-      <button class="change">Next Project</button>
-      <button class="previous">Previous Project</button>
       <button class="close">close</button>
     </div>
     <form id="options-form"></form>
@@ -92,19 +110,6 @@
       <span style="color: #ffffff; font-size: 0.9rem; font-weight: 500;">Share</span>
     </button>
   </div>
-
-  <!-- Canvas Navigation Buttons -->
-  <button id="canvas-nav-prev" class="canvas-nav-btn canvas-nav-left" aria-label="Previous project">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
-  </button>
-
-  <button id="canvas-nav-next" class="canvas-nav-btn canvas-nav-right" aria-label="Next project">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
-  </button>
 
   <script>
     // Your Firebase config here
@@ -221,22 +226,43 @@
       if (!viewer) return;
 
       // Use html2canvas to capture the viewer
-      html2canvas(viewer, { backgroundColor: null }).then(canvas => {
+      html2canvas(viewer, { backgroundColor: null }).then(async canvas => {
         // 2. Download the image
         const link = document.createElement('a');
         link.download = 'artwork-snapshot.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
 
-        // 3. Open Twitter share dialog
+        // 3. Copy the current URL (with artwork param) to clipboard
         const playlistUrl = window.location.href;
-        const tweetText = encodeURIComponent("Check out these curated interactive experiences on Olta! " + playlistUrl);
+        try {
+          await navigator.clipboard.writeText(playlistUrl);
+          console.log('Copied to clipboard:', playlistUrl);
+        } catch (err) {
+          console.warn('Could not copy to clipboard:', err);
+        }
+
+        // 4. Grab artist and project name from main.js globals
+        let projectName = '';
+        let artistName = '';
+        if (window.projects && window.current !== undefined) {
+          const proj = window.projects[window.current];
+          if (proj) {
+            projectName = proj.name || '';
+            artistName = (proj.creator && proj.creator.profile && proj.creator.profile.name) ? proj.creator.profile.name : '';
+          }
+        }
+
+        // 5. Open Twitter share dialog with the link, project, and artist pre-filled
+        const tweetText = encodeURIComponent(
+          `Check out "${projectName}" by ${artistName} on Olta! ${playlistUrl}`
+        );
         const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
         window.open(twitterUrl, '_blank');
 
-        // 4. Prompt user to attach the image
+        // 6. Prompt user to attach the image
         setTimeout(() => {
-          alert('Your artwork snapshot has been downloaded. Please attach it to your tweet!');
+          alert('Your artwork snapshot has been downloaded and the link copied! Paste the link into your tweet if needed.');
         }, 500);
       });
     });
@@ -258,77 +284,279 @@
       // Show a message: "Gesture control is only available on desktop devices."
     }
 
-    // Canvas Navigation buttons
-    document.getElementById('canvas-nav-prev').addEventListener('click', (e) => {
-      console.log('Previous button clicked!');
-      e.preventDefault();
-      e.stopPropagation();
-      // Trigger the same action as the previous button
-      const previousBtn = document.querySelector('.previous');
-      if (previousBtn && !previousBtn.disabled) {
-        console.log('Triggering previous button click');
-        previousBtn.click();
+    // Carousel navigation buttons - Robust implementation
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM Content Loaded - Looking for navigation elements...');
+
+      let prevBtn = document.getElementById('nav-prev-btn');
+      let nextBtn = document.getElementById('nav-next-btn');
+
+      console.log('Navigation elements found:', {
+        prevBtn,
+        nextBtn
+      });
+
+      // Check if navigation functions are available
+      console.log('Navigation functions available:', {
+        navigatePrevious: typeof window.navigatePrevious,
+        navigateNext: typeof window.navigateNext,
+        current: window.current,
+        options: window.options,
+        projects: window.projects
+      });
+
+      // Debug: Check if elements are in DOM
+      if (prevBtn) {
+        console.log('Previous button styles:', window.getComputedStyle(prevBtn));
+        console.log('Previous button position:', prevBtn.getBoundingClientRect());
+        console.log('Previous button is visible:', prevBtn.offsetParent !== null);
+        console.log('Previous button pointer-events:', window.getComputedStyle(prevBtn).pointerEvents);
       } else {
-        console.log('Previous button not found or disabled');
+        console.error('Previous button not found in DOM!');
       }
+
+      if (nextBtn) {
+        console.log('Next button styles:', window.getComputedStyle(nextBtn));
+        console.log('Next button position:', nextBtn.getBoundingClientRect());
+        console.log('Next button is visible:', nextBtn.offsetParent !== null);
+        console.log('Next button pointer-events:', window.getComputedStyle(nextBtn).pointerEvents);
+      } else {
+        console.error('Next button not found in DOM!');
+      }
+
+      // If buttons don't exist, create them dynamically
+      if (!prevBtn || !nextBtn) {
+        console.log('Creating navigation buttons dynamically...');
+
+        if (!prevBtn) {
+          const newPrevBtn = document.createElement('button');
+          newPrevBtn.id = 'nav-prev-btn';
+          newPrevBtn.className = 'carousel-nav-btn carousel-nav-left';
+          newPrevBtn.setAttribute('aria-label', 'Previous project');
+          newPrevBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>';
+          document.body.appendChild(newPrevBtn);
+          console.log('Created previous button dynamically');
+        }
+
+        if (!nextBtn) {
+          const newNextBtn = document.createElement('button');
+          newNextBtn.id = 'nav-next-btn';
+          newNextBtn.className = 'carousel-nav-btn carousel-nav-right';
+          newNextBtn.setAttribute('aria-label', 'Next project');
+          newNextBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>';
+          document.body.appendChild(newNextBtn);
+          console.log('Created next button dynamically');
+        }
+
+        // Re-get the buttons after creating them
+        const newPrevBtn = document.getElementById('nav-prev-btn');
+        const newNextBtn = document.getElementById('nav-next-btn');
+        if (newPrevBtn) prevBtn = newPrevBtn;
+        if (newNextBtn) nextBtn = newNextBtn;
+      }
+
+      // Function to handle previous navigation
+      function handlePreviousNavigation(e) {
+        console.log('Previous navigation triggered!');
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Visual feedback
+        showNavigationFeedback('← Previous Artwork', 'left');
+        addButtonClickEffect(prevBtn);
+
+        // Method 1: Try to dispatch custom event
+        try {
+          window.dispatchEvent(new CustomEvent('navigatePrevious'));
+          console.log('Custom event dispatched');
+        } catch (error) {
+          console.error('Error dispatching custom event:', error);
+        }
+
+        // Method 2: Try to trigger hidden button
+        try {
+          const previousBtn = document.querySelector('.previous');
+          if (previousBtn && !previousBtn.disabled) {
+            console.log('Triggering hidden previous button click');
+            previousBtn.click();
+          } else {
+            console.log('Hidden previous button not found or disabled');
+          }
+        } catch (error) {
+          console.error('Error triggering hidden button:', error);
+        }
+
+        // Method 3: Try direct function call
+        try {
+          if (window.navigatePrevious && typeof window.navigatePrevious === 'function') {
+            console.log('Calling navigatePrevious function directly');
+            window.navigatePrevious();
+          } else {
+            console.log('navigatePrevious function not available');
+          }
+        } catch (error) {
+          console.error('Error calling navigatePrevious function:', error);
+        }
+
+        // Method 4: Try to access main.js variables directly
+        try {
+          if (window.current !== undefined && window.options && window.options.projects) {
+            console.log('Attempting direct navigation via main.js variables');
+            window.current = window.decrementLoop ? window.decrementLoop(window.current, window.options.projects.length) : 0;
+            if (window.viewer && window.getUrl) {
+              window.viewer.setAttribute("url", window.getUrl());
+            }
+          }
+        } catch (error) {
+          console.error('Error with direct navigation:', error);
+        }
+      }
+
+      // Function to handle next navigation
+      function handleNextNavigation(e) {
+        console.log('Next navigation triggered!');
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Visual feedback
+        showNavigationFeedback('Next Artwork →', 'right');
+        addButtonClickEffect(nextBtn);
+
+        // Method 1: Try to dispatch custom event
+        try {
+          window.dispatchEvent(new CustomEvent('navigateNext'));
+          console.log('Custom event dispatched');
+        } catch (error) {
+          console.error('Error dispatching custom event:', error);
+        }
+
+        // Method 2: Try to trigger hidden button
+        try {
+          const nextBtn = document.querySelector('.change');
+          if (nextBtn && !nextBtn.disabled) {
+            console.log('Triggering hidden next button click');
+            nextBtn.click();
+          } else {
+            console.log('Hidden next button not found or disabled');
+          }
+        } catch (error) {
+          console.error('Error triggering hidden button:', error);
+        }
+
+        // Method 3: Try direct function call
+        try {
+          if (window.navigateNext && typeof window.navigateNext === 'function') {
+            console.log('Calling navigateNext function directly');
+            window.navigateNext();
+          } else {
+            console.log('navigateNext function not available');
+          }
+        } catch (error) {
+          console.error('Error calling navigateNext function:', error);
+        }
+
+        // Method 4: Try to access main.js variables directly
+        try {
+          if (window.current !== undefined && window.options && window.options.projects) {
+            console.log('Attempting direct navigation via main.js variables');
+            window.current = window.incrementLoop ? window.incrementLoop(window.current, window.options.projects.length) : 0;
+            if (window.viewer && window.getUrl) {
+              window.viewer.setAttribute("url", window.getUrl());
+            }
+          }
+        } catch (error) {
+          console.error('Error with direct navigation:', error);
+        }
+      }
+
+      // Function to show navigation feedback
+      function showNavigationFeedback(message, direction) {
+        const feedback = document.getElementById('nav-feedback');
+        if (feedback) {
+          feedback.textContent = message;
+          feedback.classList.add('show');
+
+          // Remove the show class after animation completes
+          setTimeout(() => {
+            feedback.classList.remove('show');
+          }, 1500);
+        }
+
+        // Console feedback
+        console.log(`🎨 ${message} - Navigation triggered!`);
+      }
+
+      // Function to add button click effect
+      function addButtonClickEffect(button) {
+        if (button) {
+          button.classList.add('clicked');
+          setTimeout(() => {
+            button.classList.remove('clicked');
+          }, 600);
+        }
+      }
+
+      if (prevBtn) {
+        console.log('Adding click listener to previous button...');
+        prevBtn.addEventListener('click', (e) => {
+          console.log('Previous button clicked! Event:', e);
+          handlePreviousNavigation(e);
+        });
+        // Add hover event listeners for debugging
+        prevBtn.addEventListener('mouseenter', () => console.log('Previous button hover start'));
+        prevBtn.addEventListener('mouseleave', () => console.log('Previous button hover end'));
+        console.log('Previous button event listeners added successfully');
+      } else {
+        console.error('Previous carousel navigation button not found!');
+      }
+
+      if (nextBtn) {
+        console.log('Adding click listener to next button...');
+        nextBtn.addEventListener('click', (e) => {
+          console.log('Next button clicked! Event:', e);
+          handleNextNavigation(e);
+        });
+        // Add hover event listeners for debugging
+        nextBtn.addEventListener('mouseenter', () => console.log('Next button hover start'));
+        nextBtn.addEventListener('mouseleave', () => console.log('Next button hover end'));
+        console.log('Next button event listeners added successfully');
+      } else {
+        console.error('Next carousel navigation button not found!');
+      }
+
+      // Add event listeners to overlays
+      // The overlays are removed from the HTML, so this block is no longer needed.
+      // if (leftOverlay) {
+      //   leftOverlay.addEventListener('click', handlePreviousNavigation);
+      //   console.log('Left overlay click listener added');
+      // }
+
+      // if (rightOverlay) {
+      //   rightOverlay.addEventListener('click', handleNextNavigation);
+      //   console.log('Right overlay click listener added');
+      // }
     });
 
-    document.getElementById('canvas-nav-next').addEventListener('click', (e) => {
-      console.log('Next button clicked!');
-      e.preventDefault();
-      e.stopPropagation();
-      // Trigger the same action as the next button
-      const nextBtn = document.querySelector('.change');
-      if (nextBtn && !nextBtn.disabled) {
-        console.log('Triggering next button click');
-        nextBtn.click();
-      } else {
-        console.log('Next button not found or disabled');
-      }
-    });
-
-    // Update navigation button states when projects change
-    function updateNavButtonStates() {
-      const prevBtn = document.getElementById('canvas-nav-prev');
-      const nextBtn = document.getElementById('canvas-nav-next');
+    // Update top navigation button states when projects change
+    function updateTopNavButtonStates() {
+      const topPrevBtn = document.getElementById('nav-prev-btn');
+      const topNextBtn = document.getElementById('nav-next-btn');
       const previousBtn = document.querySelector('.previous');
       const nextBtnMain = document.querySelector('.change');
 
-      if (prevBtn && previousBtn) {
-        prevBtn.disabled = previousBtn.disabled;
+      if (topPrevBtn && previousBtn) {
+        topPrevBtn.disabled = previousBtn.disabled;
       }
-      if (nextBtn && nextBtnMain) {
-        nextBtn.disabled = nextBtnMain.disabled;
+      if (topNextBtn && nextBtnMain) {
+        topNextBtn.disabled = nextBtnMain.disabled;
       }
     }
 
     // Listen for artwork changes to update button states
-    window.addEventListener('artworkChanged', updateNavButtonStates);
+    window.addEventListener('artworkChanged', updateTopNavButtonStates);
 
     // Initial state update
-    setTimeout(updateNavButtonStates, 1000);
-
-    // Ensure navigation buttons are properly set up after DOM loads
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('Setting up canvas navigation buttons...');
-
-      const prevBtn = document.getElementById('canvas-nav-prev');
-      const nextBtn = document.getElementById('canvas-nav-next');
-
-      if (prevBtn) {
-        console.log('Previous button found:', prevBtn);
-        prevBtn.style.pointerEvents = 'auto';
-      } else {
-        console.error('Previous button not found!');
-      }
-
-      if (nextBtn) {
-        console.log('Next button found:', nextBtn);
-        nextBtn.style.pointerEvents = 'auto';
-      } else {
-        console.error('Next button not found!');
-      }
-    });
+    setTimeout(updateTopNavButtonStates, 2500);
   </script>
 </body>
 

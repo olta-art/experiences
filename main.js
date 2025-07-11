@@ -4,7 +4,7 @@ import { queryfetcher, SEPARATOR as sep, decode } from "./helpers.js";
 
 const staticArtworks = [
   {
-    id: "static-4",
+    id: "Shadows Touch Accross Time",
     name: "Shadows Touch Accross Time",
     description: "Motion interactive",
     creator: { profile: { name: "Epok.Tech" } },
@@ -17,7 +17,7 @@ const staticArtworks = [
   },
 
   {
-    id: "static-1",
+    id: "Optical-Verlet",
     name: "Optical Verlet",
     description: "Motion interactive.",
     creator: { profile: { name: "XVI_JOJO" } },
@@ -30,7 +30,7 @@ const staticArtworks = [
   },
 
   {
-    id: "static-3",
+    id: "Dissolvi",
     name: "Dissolvi",
     description: "Motion interactive.",
     creator: { profile: { name: "Omar Lobato" } },
@@ -83,6 +83,43 @@ const options = {
   },
 };
 
+// Navigation functions
+function navigateToPrevious() {
+  console.log('[NAV] navigateToPrevious called', { current, projects, url: getUrl() });
+  current = decrementLoop(current, options.projects.length);
+  viewer.setAttribute("url", getUrl());
+  change.classList = "change spin";
+  disableButtons();
+  setCurrentProjectIdGlobal();
+  updateGlobalVariables();
+  showArtworkChangeFeedback('Artwork changed (via Previous button)');
+  updateUrlParam(); // <-- Add this line
+  // --- Extra logging for debugging ---
+  console.log('[NAV] After navigateToPrevious:', {
+    current,
+    previousDisabled: previous.disabled,
+    changeDisabled: change.disabled
+  });
+}
+
+function navigateToNext() {
+  console.log('[NAV] navigateToNext called', { current, projects, url: getUrl() });
+  current = incrementLoop(current, options.projects.length);
+  viewer.setAttribute("url", getUrl());
+  change.classList = "change spin";
+  disableButtons();
+  setCurrentProjectIdGlobal();
+  updateGlobalVariables();
+  showArtworkChangeFeedback('Artwork changed (via Next button)');
+  updateUrlParam(); // <-- Add this line
+  // --- Extra logging for debugging ---
+  console.log('[NAV] After navigateToNext:', {
+    current,
+    previousDisabled: previous.disabled,
+    changeDisabled: change.disabled
+  });
+}
+
 // viewer
 const viewer = document.createElement("o-viewer");
 viewer.setAttribute("url", "");
@@ -97,41 +134,77 @@ document.body.appendChild(details);
 // previous button
 const previous = document.querySelector(".previous");
 previous.addEventListener("click", () => {
-  current = decrementLoop(current, options.projects.length);
-  
-  // For artworks with multiple editions, keep random option available
-  // but don't auto-randomize - let user control this
-  if (currentProject().editionSize > 1) {
-    // Note: We removed the random button, so this is just for reference
-    // You could add a different control here if needed
-  }
-
-  viewer.setAttribute("url", getUrl());
-  previous.classList = "previous spin";
-  disableButtons();
-  setCurrentProjectIdGlobal();
+  navigateToPrevious();
 });
 
 // change button
 const change = document.querySelector(".change");
 change.addEventListener("click", () => {
-  current = incrementLoop(current, options.projects.length);
-  
-  // Google Analytics event for testing
-  if (typeof gtag === 'function') {
-    gtag('event', 'next_project_clicked', {
-      'event_category': 'engagement',
-      'event_label': 'Next Project Button'
-    });
+  navigateToNext();
+});
+
+// --- URL Param Playlist Router Integration ---
+
+function updateUrlParam(replace = false) {
+  const proj = currentProject();
+  if (proj && proj.id) {
+    const url = `?artwork=${encodeURIComponent(proj.id)}`;
+    if (replace) {
+      window.history.replaceState({ artworkId: proj.id }, '', url);
+    } else {
+      window.history.pushState({ artworkId: proj.id }, '', url);
+    }
+  }
+}
+
+function getIndexFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const artworkId = params.get('artwork');
+  if (!artworkId) return 0;
+  const idx = options.projects.findIndex(id => id === artworkId);
+  return idx >= 0 ? idx : 0;
+}
+
+// --- END URL Param Playlist Router Integration ---
+
+// Function to update global variables
+function updateGlobalVariables() {
+  window.current = current;
+  window.options = options;
+  window.projects = projects;
+  window.viewer = viewer;
+  window.getUrl = getUrl;
+  window.incrementLoop = incrementLoop;
+  window.decrementLoop = decrementLoop;
+  window.disableButtons = disableButtons;
+  window.setCurrentProjectIdGlobal = setCurrentProjectIdGlobal;
   }
 
-  // Note: Random edition functionality removed - users can use Previous/Next buttons
-  // to navigate through projects manually
+// Expose navigation functions globally
+window.navigatePrevious = navigateToPrevious;
+window.navigateNext = navigateToNext;
 
-  viewer.setAttribute("url", getUrl());
-  change.classList = "change spin";
-  disableButtons();
-  setCurrentProjectIdGlobal();
+// Expose other necessary variables and functions globally
+window.current = current;
+window.options = options;
+window.projects = projects;
+window.viewer = viewer;
+window.getUrl = getUrl;
+window.incrementLoop = incrementLoop;
+window.decrementLoop = decrementLoop;
+window.disableButtons = disableButtons;
+window.setCurrentProjectIdGlobal = setCurrentProjectIdGlobal;
+window.updateGlobalVariables = updateGlobalVariables;
+
+// Listen for custom navigation events from top nav buttons
+window.addEventListener('navigatePrevious', () => {
+  console.log('Main.js: navigatePrevious event received');
+  navigateToPrevious();
+});
+
+window.addEventListener('navigateNext', () => {
+  console.log('Main.js: navigateNext event received');
+  navigateToNext();
 });
 
 const optionsEl = document.querySelector("dialog.options");
@@ -271,6 +344,7 @@ function updateProjectInterval(seconds) {
     change.classList = "change spin";
     disableButtons();
     setCurrentProjectIdGlobal();
+    updateUrlParam(true); // <-- Add this line
   }, seconds * 1000);
 
   updateEditionInterval(options.timing.edition);
@@ -290,80 +364,15 @@ function updateEditionInterval(seconds) {
 
 const spinner = document.querySelector(".spinner");
 
+// Only disable/enable the visible nav buttons
 function disableButtons() {
-  // TODO: show spinner
-  previous.setAttribute("disabled", "");
-  change.setAttribute("disabled", "");
+  const prevBtn = document.getElementById('nav-prev-btn');
+  const nextBtn = document.getElementById('nav-next-btn');
+  prevBtn.setAttribute("disabled", "");
+  nextBtn.setAttribute("disabled", "");
   setTimeout(() => {
-    change.removeAttribute("disabled");
-    previous.removeAttribute("disabled");
-
-    change.classList = "change";
-    previous.classList = "previous";
-
-    const { name, description, creator } = getDetails();
-    console.log("olta", name);
-    
-    // Only set attributes if they are enabled in display options
-    if (options.display.name) {
-      details.setAttribute("name", name);
-    }
-    if (options.display.description) {
-      details.setAttribute("description", decode(description));
-    }
-    if (options.display.creator) {
-      details.setAttribute("creator", creator);
-    }
-    if (options.display.qr) {
-      if (currentProject().qrCodeUrl) {
-        details.setAttribute("qrcode", currentProject().qrCodeUrl);
-      } else {
-        // Fallback to the actual artwork URL if no specific QR code URL is set
-        const artworkUrl = currentProject().lastAddedVersion?.animation?.url;
-        if (artworkUrl) {
-          details.setAttribute("qrcode", artworkUrl);
-        } else {
-          // Final fallback to Olta project page
-          details.setAttribute(
-            "qrcode",
-            `https://nft.olta.art/project/${currentProject().id}`
-          );
-        }
-      }
-    }
-    
-    // On mobile, add a "Visit Artist" button since QR codes are disabled
-    if (isMobile && currentProject().qrCodeUrl) {
-      // Add a mobile-friendly artist link button
-      const mobileArtistLink = document.createElement('a');
-      mobileArtistLink.href = currentProject().qrCodeUrl;
-      mobileArtistLink.target = '_blank';
-      mobileArtistLink.textContent = 'Visit Artist';
-      mobileArtistLink.style.cssText = `
-        position: fixed;
-        bottom: 2rem;
-        left: 2rem;
-        background: rgba(255, 255, 255, 0.9);
-        color: black;
-        padding: 0.5rem 1rem;
-        border-radius: 2rem;
-        text-decoration: none;
-        font-weight: bold;
-        z-index: 100;
-        font-size: 0.9rem;
-      `;
-      
-      // Remove any existing mobile artist link
-      const existingLink = document.querySelector('.mobile-artist-link');
-      if (existingLink) {
-        existingLink.remove();
-      }
-      
-      mobileArtistLink.classList.add('mobile-artist-link');
-      document.body.appendChild(mobileArtistLink);
-    }
-
-    alignQrCodeToRight();
+    prevBtn.removeAttribute("disabled");
+    nextBtn.removeAttribute("disabled");
   }, 2500);
 }
 
@@ -393,16 +402,37 @@ function getRandSeed(seed, editionSize) {
 }
 
 function getUrl() {
-  if (!projects || projects.length == 0) return;
+  console.log('getUrl called');
+  console.log('projects:', projects);
+  console.log('projects.length:', projects.length);
+  
+  if (!projects || projects.length == 0) {
+    console.error('No projects available!');
+    return;
+  }
 
-  const url = currentProject().lastAddedVersion.animation.url.replace(
+  const currentProj = currentProject();
+  if (!currentProj) {
+    console.error('currentProject() returned null!');
+    return;
+  }
+  
+  console.log('Current project:', currentProj);
+  
+  const url = currentProj.lastAddedVersion.animation.url.replace(
     "http:",
     "https:"
   );
+  console.log('Base URL:', url);
 
-  const address = currentProject().id;
+  const address = currentProj.id;
+  console.log('Address:', address);
+  console.log('Seed:', seed);
 
-  return `${url}?id=1&seed=${seed}&address=${address}`;
+  const finalUrl = `${url}?id=1&seed=${seed}&address=${address}`;
+  console.log('Final URL:', finalUrl);
+
+  return finalUrl;
 }
 
 function isSeeded() {
@@ -423,10 +453,31 @@ function getDetails() {
 }
 
 function currentProject() {
+  console.log('currentProject called with current:', current);
+  console.log('options.projects:', options.projects);
+  console.log('projects array:', projects);
+  
+  if (!options.projects || options.projects.length === 0) {
+    console.error('options.projects is empty or undefined!');
+    return null;
+  }
+  
   const id = options.projects[current];
   console.log("PROJECT", current, id);
+  
+  if (!id) {
+    console.error('No project ID found for current index:', current);
+    return null;
+  }
+  
   const proj = projects.find((p) => p.id == id);
-  console.log(proj);
+  console.log('Found project:', proj);
+  
+  if (!proj) {
+    console.error('No project found with ID:', id);
+    return null;
+  }
+  
   return proj;
 }
 
@@ -556,6 +607,8 @@ async function requestCameraOnce() {
   projects = [...filteredStaticArtworks, ...filteredProjects];
   options.projects = projects.map((p) => p.id);
 
+  current = getIndexFromUrl(); // <-- Insert here
+
   renderOptions();
 
   seed = getRandSeed(seed, projects[current].editionSize);
@@ -599,3 +652,53 @@ const firebaseConfig = {
   messagingSenderId: "1009481982599",
   appId: "1:1009481982599:web:c625bd9f64d9625fae8e22"
 };
+
+// Function to show artwork change feedback
+function showArtworkChangeFeedback(message) {
+  const feedback = document.getElementById('nav-feedback');
+  if (feedback) {
+    feedback.textContent = message;
+    feedback.classList.add('show');
+    
+    // Remove the show class after animation completes
+    setTimeout(() => {
+      feedback.classList.remove('show');
+    }, 1500);
+  }
+  
+  // Console feedback with artwork info
+  const currentArtwork = currentProject();
+  if (currentArtwork) {
+    console.log(`🎨 ${message} - Now viewing: "${currentArtwork.name}" by ${currentArtwork.creator?.profile?.name || 'Unknown Artist'}`);
+  }
+}
+
+// --- Handle browser back/forward navigation ---
+window.addEventListener('popstate', () => {
+  const idx = getIndexFromUrl();
+  if (typeof idx === 'number' && idx >= 0 && idx < options.projects.length) {
+    current = idx;
+    viewer.setAttribute("url", getUrl());
+    setCurrentProjectIdGlobal();
+    updateGlobalVariables();
+    showArtworkChangeFeedback('Artwork changed (via browser navigation)');
+  }
+});
+// --- END popstate ---
+
+// Attach event listeners to visible nav buttons
+document.getElementById('nav-prev-btn').addEventListener('click', () => {
+  window.navigatePrevious && window.navigatePrevious();
+});
+document.getElementById('nav-next-btn').addEventListener('click', () => {
+  window.navigateNext && window.navigateNext();
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') {
+    window.navigatePrevious && window.navigatePrevious();
+  } else if (e.key === 'ArrowRight') {
+    window.navigateNext && window.navigateNext();
+  }
+});
