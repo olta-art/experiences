@@ -331,10 +331,12 @@ function updateProjectInterval(seconds) {
     // to navigate through projects manually
 
     viewer.setAttribute("url", getUrl());
+    updateDetailsPanel(); // <-- ADD THIS LINE
     change.classList = "change spin";
     disableButtons();
     setCurrentProjectIdGlobal();
-    updateUrlParam(true); // <-- Add this line
+    updateGlobalVariables(); // <-- ADD THIS LINE TOO
+    updateUrlParam(true);
   }, seconds * 1000);
 
   updateEditionInterval(options.timing.edition);
@@ -347,6 +349,7 @@ function updateEditionInterval(seconds) {
   editionInterval = setInterval(() => {
     seed = getRandSeed(seed, currentProject().editionSize);
     viewer.setAttribute("url", getUrl());
+    updateDetailsPanel(); // <-- ADD THIS LINE
     // Note: Random button removed - edition cycling handled differently now
     disableButtons();
   }, seconds * 1000);
