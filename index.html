@@ -29,6 +29,7 @@
 </head>
 
 <body>
+  <div id="playlist-label" class="playlist-label"></div>
   <!-- Navigation feedback indicator -->
   <div id="nav-feedback" class="nav-feedback"></div>
 
@@ -63,9 +64,9 @@
       <h2 part="creator">
         <slot name="creator"></slot>
       </h2>
-      <p part="description">
+      <!-- <p part="description">
         <slot name="description"></slot>
-      </p>
+      </p> -->
     </div>
     </div>
   </template>
@@ -220,10 +221,66 @@
     });
     // --- END HEART REACTION LOGIC ---
 
+    // Function to get current artwork info for sharing
+    function getCurrentArtworkInfo() {
+      console.log('=== SHARE DEBUG INFO ===');
+      console.log('window.current:', window.current);
+      console.log('window.projects:', window.projects);
+      console.log('window.options.projects:', window.options?.projects);
+
+      let projectName = '';
+      let artistName = '';
+      let artworkUrl = '';
+
+      // Method 1: Use currentProject function
+      if (window.currentProject && typeof window.currentProject === 'function') {
+        const currentProj = window.currentProject();
+        console.log('currentProject() result:', currentProj);
+        if (currentProj) {
+          projectName = currentProj.name || '';
+          artistName = currentProj.creator?.profile?.name || '';
+          artworkUrl = currentProj.lastAddedVersion?.animation?.url || '';
+        }
+      }
+
+      // Method 2: Direct array access
+      if (!projectName && window.projects && window.current !== undefined) {
+        const proj = window.projects[window.current];
+        console.log('Direct array access result:', proj);
+        if (proj) {
+          projectName = proj.name || '';
+          artistName = proj.creator?.profile?.name || '';
+          artworkUrl = proj.lastAddedVersion?.animation?.url || '';
+        }
+      }
+
+      // Method 3: Get from DOM
+      if (!projectName) {
+        const detailsElement = document.querySelector('o-details');
+        if (detailsElement && detailsElement.shadowRoot) {
+          const nameSlot = detailsElement.shadowRoot.querySelector('slot[name="name"]');
+          const creatorSlot = detailsElement.shadowRoot.querySelector('slot[name="creator"]');
+          if (nameSlot) projectName = nameSlot.textContent || '';
+          if (creatorSlot) artistName = creatorSlot.textContent || '';
+        }
+      }
+
+      console.log('Final share info:', { projectName, artistName, artworkUrl });
+      return { projectName, artistName, artworkUrl };
+    }
+
+    // Expose the share function globally
+    window.getCurrentArtworkInfo = getCurrentArtworkInfo;
+
     document.getElementById('share-btn').addEventListener('click', async () => {
+      console.log('Share button clicked!');
+
       // 1. Take a snapshot of the artwork viewer
       const viewer = document.querySelector('o-viewer');
-      if (!viewer) return;
+      if (!viewer) {
+        console.error('Viewer element not found!');
+        return;
+      }
 
       // Use html2canvas to capture the viewer
       html2canvas(viewer, { backgroundColor: null }).then(async canvas => {
@@ -242,16 +299,11 @@
           console.warn('Could not copy to clipboard:', err);
         }
 
-        // 4. Grab artist and project name from main.js globals
-        let projectName = '';
-        let artistName = '';
-        if (window.projects && window.current !== undefined) {
-          const proj = window.projects[window.current];
-          if (proj) {
-            projectName = proj.name || '';
-            artistName = (proj.creator && proj.creator.profile && proj.creator.profile.name) ? proj.creator.profile.name : '';
-          }
-        }
+        // 4. Get current artwork info using the new function
+        const artworkInfo = window.getCurrentArtworkInfo ? window.getCurrentArtworkInfo() : { projectName: '', artistName: '', artworkUrl: '' };
+        const { projectName, artistName, artworkUrl } = artworkInfo;
+
+        console.log('Share info for tweet:', { projectName, artistName, playlistUrl });
 
         // 5. Open Twitter share dialog with the link, project, and artist pre-filled
         const tweetText = encodeURIComponent(

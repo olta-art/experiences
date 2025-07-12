@@ -35,7 +35,7 @@ export class Viewer extends HTMLElement {
         width: calc(100% + 1em);
         height: calc(100% + 1em);
         border: none;
-        pointer-events: none !important;
+        /* pointer-events: none !important; */
       }
     </style>
   `);
@@ -48,7 +48,7 @@ export class Viewer extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     console.log('[o-viewer] attributeChangedCallback', { name, oldValue, newValue });
 
-    if (name === "url" && newValue) {
+    if (name === "url" && newValue && oldValue !== newValue) {
       const iframe = this.shadowRoot.querySelector("iframe");
       if (iframe) {
         iframe.src = newValue;

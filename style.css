@@ -689,8 +689,3 @@ button.carousel-nav-btn:focus,
   }
 
 }
-
-
-iframe {
-  pointer-events: none !important;
-}

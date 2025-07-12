@@ -4,7 +4,7 @@ import { queryfetcher, SEPARATOR as sep, decode } from "./helpers.js";
 
 const staticArtworks = [
   {
-    id: "Shadows Touch Accross Time",
+    id: "Shadows-Touch-Accross-Time",
     name: "Shadows Touch Accross Time",
     description: "Motion interactive",
     creator: { profile: { name: "Epok.Tech" } },
@@ -42,18 +42,6 @@ const staticArtworks = [
     qrCodeUrl: "https://omar-lobato.com"
   }
   
-
-  
-  // Optical Verlet - Artwork 
-  // https://a7frsrbb25jdkt6rkwxhj6y44eh3rzyiffo6ait3kypjm7fqh5lq.arweave.net/B8sZRCHXUjVP0VWudPsc4Q-45wgpXeAie1YelnywP1c/
-
-  // Peer into the Flow - Artwork 
-  // https://yfhwavf2ac37wdgcee5p62jp4myyk4imhpdrvarmfhawg36firrq.arweave.net/wU9gVLoAt_sMwiE6_2kv4zGFcQw7xxqCLCnBY2_FRGM/?id=1&address=0x6d24ce4c32e556313b431fb156edf2060680a998&seed=9
-  
-  // Shadows Touch Accross Time
-  // https://epok.tech/shadows-touch-across-time-demo/
-  
-  // Add more static artworks as needed
 ];
 
 if ("customElements" in window) {
@@ -88,6 +76,7 @@ function navigateToPrevious() {
   console.log('[NAV] navigateToPrevious called', { current, projects, url: getUrl() });
   current = decrementLoop(current, options.projects.length);
   viewer.setAttribute("url", getUrl());
+  updateDetailsPanel(); // <-- add this
   change.classList = "change spin";
   disableButtons();
   setCurrentProjectIdGlobal();
@@ -106,6 +95,7 @@ function navigateToNext() {
   console.log('[NAV] navigateToNext called', { current, projects, url: getUrl() });
   current = incrementLoop(current, options.projects.length);
   viewer.setAttribute("url", getUrl());
+  updateDetailsPanel(); // <-- add this
   change.classList = "change spin";
   disableButtons();
   setCurrentProjectIdGlobal();
@@ -545,6 +535,21 @@ async function requestCameraOnce() {
   }
 }
 
+// Define the playlists at the top of main.js
+const gestureControlPlaylist = [
+  "Shadows-Touch-Accross-Time",
+  "Optical-Verlet",
+  "Dissolvi",
+  "Peer into the Flow"
+];
+
+const desktopPlaylist = [
+  "FIELDS",
+  "Meanwhile",
+  "Morphed Radiance",
+  "Faded Memories"
+];
+
 (async function fetchProjects() {
   await requestCameraOnce();
   const resp = await queryfetcher(
@@ -603,16 +608,39 @@ async function requestCameraOnce() {
     }
   });
 
-  // Merge filtered static and dynamic artworks
-  projects = [...filteredStaticArtworks, ...filteredProjects];
-  options.projects = projects.map((p) => p.id);
+  // After fetching and filtering all projects into the 'projects' array:
+  function getProjectById(id) {
+    return filteredProjects.find(p => p.id === id);
+  }
 
-  current = getIndexFromUrl(); // <-- Insert here
+  // Build the ordered playlist
+  const orderedProjects = [
+    ...gestureControlPlaylist.map(getProjectById),
+    ...desktopPlaylist.map(getProjectById)
+  ].filter(Boolean); // Remove any not found
+
+  projects = orderedProjects.length > 0 ? orderedProjects : staticArtworks;
+  options.projects = projects.map(p => p.id);
+  console.log("Navigation order:", options.projects);
+  console.log("Projects array:", projects.map(p => p.name));
+
+  current = getIndexFromUrl();
+  if (!projects[current]) current = 0;
 
   renderOptions();
 
+  if (!projects.length) {
+    console.error("No projects to display!");
+    return;
+  }
+  if (!projects[current]) {
+    console.error("Current project is undefined!");
+    return;
+  }
+
   seed = getRandSeed(seed, projects[current].editionSize);
   viewer.setAttribute("url", getUrl());
+  updateDetailsPanel(); // <-- add this
   disableButtons();
   setCurrentProjectIdGlobal();
 })();
@@ -702,3 +730,25 @@ document.addEventListener('keydown', (e) => {
     window.navigateNext && window.navigateNext();
   }
 });
+
+// Add this function near your other helpers
+function updateDetailsPanel() {
+  const detailsObj = getDetails();
+  if (!detailsObj) return;
+  const { name, description, creator } = detailsObj;
+  details.setAttribute("name", name || "");
+  details.setAttribute("description", description || "");
+  details.setAttribute("creator", creator || "");
+  // Set QR code attribute
+  if (currentProject() && currentProject().qrCodeUrl) {
+    details.setAttribute("qrcode", currentProject().qrCodeUrl);
+  } else {
+    // fallback to artwork URL or project page
+    const artworkUrl = currentProject() && currentProject().lastAddedVersion?.animation?.url;
+    if (artworkUrl) {
+      details.setAttribute("qrcode", artworkUrl);
+    } else if (currentProject()) {
+      details.setAttribute("qrcode", `https://nft.olta.art/project/${currentProject().id}`);
+    }
+  }
+}
