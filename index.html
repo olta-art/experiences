@@ -231,6 +231,7 @@
       let projectName = '';
       let artistName = '';
       let artworkUrl = '';
+      let twitterHandle = '';
 
       // Method 1: Use currentProject function
       if (window.currentProject && typeof window.currentProject === 'function') {
@@ -240,6 +241,9 @@
           projectName = currentProj.name || '';
           artistName = currentProj.creator?.profile?.name || '';
           artworkUrl = currentProj.lastAddedVersion?.animation?.url || '';
+
+          // Get Twitter handle for this artwork
+          twitterHandle = artworkTwitterHandles[projectName] || '';
         }
       }
 
@@ -251,6 +255,7 @@
           projectName = proj.name || '';
           artistName = proj.creator?.profile?.name || '';
           artworkUrl = proj.lastAddedVersion?.animation?.url || '';
+          twitterHandle = artworkTwitterHandles[projectName] || '';
         }
       }
 
@@ -262,11 +267,12 @@
           const creatorSlot = detailsElement.shadowRoot.querySelector('slot[name="creator"]');
           if (nameSlot) projectName = nameSlot.textContent || '';
           if (creatorSlot) artistName = creatorSlot.textContent || '';
+          twitterHandle = artworkTwitterHandles[projectName] || '';
         }
       }
 
-      console.log('Final share info:', { projectName, artistName, artworkUrl });
-      return { projectName, artistName, artworkUrl };
+      console.log('Final share info:', { projectName, artistName, artworkUrl, twitterHandle });
+      return { projectName, artistName, artworkUrl, twitterHandle };
     }
 
     // Expose the share function globally
@@ -275,48 +281,46 @@
     document.getElementById('share-btn').addEventListener('click', async () => {
       console.log('Share button clicked!');
 
-      // 1. Take a snapshot of the artwork viewer
-      const viewer = document.querySelector('o-viewer');
-      if (!viewer) {
-        console.error('Viewer element not found!');
-        return;
+      // Copy URL to clipboard
+      const playlistUrl = window.location.href;
+      try {
+        await navigator.clipboard.writeText(playlistUrl);
+        console.log('Copied to clipboard:', playlistUrl);
+      } catch (err) {
+        console.warn('Could not copy to clipboard:', err);
       }
 
-      // Use html2canvas to capture the viewer
-      html2canvas(viewer, { backgroundColor: null }).then(async canvas => {
-        // 2. Download the image
-        const link = document.createElement('a');
-        link.download = 'artwork-snapshot.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+      // Get current artwork name from DOM
+      const detailsElement = document.querySelector('o-details');
+      let projectName = '';
+      if (detailsElement && detailsElement.shadowRoot) {
+        const nameSlot = detailsElement.shadowRoot.querySelector('slot[name="name"]');
+        if (nameSlot) projectName = nameSlot.textContent || '';
+      }
 
-        // 3. Copy the current URL (with artwork param) to clipboard
-        const playlistUrl = window.location.href;
-        try {
-          await navigator.clipboard.writeText(playlistUrl);
-          console.log('Copied to clipboard:', playlistUrl);
-        } catch (err) {
-          console.warn('Could not copy to clipboard:', err);
-        }
+      // Twitter handle mapping for gesture control playlist
+      const twitterHandles = {
+        "Shadows Touch Accross Time": "@epok_tech",
+        "Optical Verlet": "@xvijojo",
+        "Dissolvi": "@seigneurrrr",
+        "Peer into the Flow": "@peerintotheflow"
+      };
 
-        // 4. Get current artwork info using the new function
-        const artworkInfo = window.getCurrentArtworkInfo ? window.getCurrentArtworkInfo() : { projectName: '', artistName: '', artworkUrl: '' };
-        const { projectName, artistName, artworkUrl } = artworkInfo;
+      const twitterHandle = twitterHandles[projectName] || '';
 
-        console.log('Share info for tweet:', { projectName, artistName, playlistUrl });
+      // Build tweet text
+      let tweetText = `Check out "${projectName}"`;
+      if (twitterHandle) {
+        tweetText += ` by ${twitterHandle}`;
+      }
+      tweetText += ` on Olta! ${playlistUrl}`;
 
-        // 5. Open Twitter share dialog with the link, project, and artist pre-filled
-        const tweetText = encodeURIComponent(
-          `Check out "${projectName}" by ${artistName} on Olta! ${playlistUrl}`
-        );
-        const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
-        window.open(twitterUrl, '_blank');
+      console.log('Tweet text:', tweetText);
 
-        // 6. Prompt user to attach the image
-        setTimeout(() => {
-          alert('Your artwork snapshot has been downloaded and the link copied! Paste the link into your tweet if needed.');
-        }, 500);
-      });
+      // Open Twitter
+      const encodedTweetText = encodeURIComponent(tweetText);
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedTweetText}`;
+      window.open(twitterUrl, '_blank');
     });
 
     const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);

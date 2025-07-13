@@ -4,8 +4,8 @@ import { queryfetcher, SEPARATOR as sep, decode } from "./helpers.js";
 
 const staticArtworks = [
   {
-    id: "Shadows-Touch-Accross-Time",
-    name: "Shadows Touch Accross Time",
+    id: "Shadows-Touch-Across-Time",
+    name: "Shadows Touch Across Time",
     description: "Motion interactive",
     creator: { profile: { name: "Epok.Tech" } },
     editionSize: 1,
