@@ -37,6 +37,54 @@ export class Viewer extends HTMLElement {
         border: none;
         /* pointer-events: none !important; */
       }
+
+      .playlist-header {
+        position: fixed;
+        top: 2rem;
+        left: 2rem;
+        z-index: 1000; /* Higher z-index to ensure it's on top */
+        color: white;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 1rem 1.5rem;
+        border-radius: 1rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        max-width: 400px;
+      }
+
+      .playlist-title {
+        font-size: 1.5rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        color: #7be7b8;
+        line-height: 1.2;
+      }
+
+      .playlist-description {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        line-height: 1.4;
+        font-weight: 400;
+      }
+
+      /* Mobile responsive adjustments */
+      @media (max-width: 768px) {
+        .playlist-header {
+          top: 1rem;
+          left: 1rem;
+          right: 1rem;
+          max-width: none;
+          padding: 0.8rem 1rem;
+        }
+        
+        .playlist-title {
+          font-size: 1.2rem;
+        }
+        
+        .playlist-description {
+          font-size: 0.8rem;
+        }
+      }
     </style>
   `);
 

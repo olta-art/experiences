@@ -26,9 +26,19 @@
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <meta property="og:title" content="Gesture Control - Interactive Experiences | Olta">
+  <meta property="og:description" content="Motion-controlled digital artworks that respond to your movements">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Gesture Control - Interactive Experiences | Olta">
+  <meta name="twitter:description" content="Motion-controlled digital artworks that respond to your movements">
 </head>
 
 <body>
+  <div id="playlist-header" class="playlist-header">
+    <div class="playlist-title">Gesture Control - Interactive Experiences</div>
+    <div class="playlist-description">Motion-controlled digital artworks that respond to your movements</div>
+  </div>
   <div id="playlist-label" class="playlist-label"></div>
   <!-- Navigation feedback indicator -->
   <div id="nav-feedback" class="nav-feedback"></div>
@@ -313,7 +323,7 @@
       if (twitterHandle) {
         tweetText += ` by ${twitterHandle}`;
       }
-      tweetText += ` on Olta! ${playlistUrl}`;
+      tweetText += ` from the Gesture Control - Interactive Experiences playlist on Olta! ${playlistUrl}`;
 
       console.log('Tweet text:', tweetText);
 
