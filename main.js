@@ -40,6 +40,19 @@ const staticArtworks = [
       animation: { url: "https://dissolvi-olta.vercel.app/" }
     },
     qrCodeUrl: "https://omar-lobato.com"
+  },
+
+  {
+    id: "Faded-Memories",
+    name: "Faded Memories",
+    description: "Interactive desktop artwork.",
+    creator: { profile: { name: "Artist Name" } },
+    editionSize: 1,
+    symbol: "STATIC2",
+    lastAddedVersion: {
+      animation: { url: "https://faded-memories-artwork-url.com/" }
+    },
+    qrCodeUrl: "https://artist-website.com"
   }
   
 ];
@@ -73,16 +86,34 @@ const options = {
 
 // Navigation functions
 function navigateToPrevious() {
-  console.log('[NAV] navigateToPrevious called', { current, projects, url: getUrl() });
+  console.log('[NAV] navigateToPrevious called', { 
+    current, 
+    projectsLength: projects.length, 
+    optionsProjectsLength: options.projects.length,
+    optionsProjects: options.projects,
+    projects: projects.map(p => p.name)
+  });
+  
+  if (!isNavigationReady()) {
+    console.error('[NAV] Navigation not ready! Projects:', projects?.length, 'Options:', options.projects?.length);
+    return;
+  }
+  
   current = decrementLoop(current, options.projects.length);
-  viewer.setAttribute("url", getUrl());
-  updateDetailsPanel(); // <-- add this
+  console.log('[NAV] New current index:', current);
+  
+  const newUrl = getUrl();
+  console.log('[NAV] New URL:', newUrl);
+  
+  viewer.setAttribute("url", newUrl);
+  updateDetailsPanel();
   change.classList = "change spin";
   disableButtons();
   setCurrentProjectIdGlobal();
   updateGlobalVariables();
   showArtworkChangeFeedback('Artwork changed (via Previous button)');
-  updateUrlParam(); // <-- Add this line
+  updateUrlParam();
+  
   // --- Extra logging for debugging ---
   console.log('[NAV] After navigateToPrevious:', {
     current,
@@ -92,16 +123,34 @@ function navigateToPrevious() {
 }
 
 function navigateToNext() {
-  console.log('[NAV] navigateToNext called', { current, projects, url: getUrl() });
+  console.log('[NAV] navigateToNext called', { 
+    current, 
+    projectsLength: projects.length, 
+    optionsProjectsLength: options.projects.length,
+    optionsProjects: options.projects,
+    projects: projects.map(p => p.name)
+  });
+  
+  if (!isNavigationReady()) {
+    console.error('[NAV] Navigation not ready! Projects:', projects?.length, 'Options:', options.projects?.length);
+    return;
+  }
+  
   current = incrementLoop(current, options.projects.length);
-  viewer.setAttribute("url", getUrl());
-  updateDetailsPanel(); // <-- add this
+  console.log('[NAV] New current index:', current);
+  
+  const newUrl = getUrl();
+  console.log('[NAV] New URL:', newUrl);
+  
+  viewer.setAttribute("url", newUrl);
+  updateDetailsPanel();
   change.classList = "change spin";
   disableButtons();
   setCurrentProjectIdGlobal();
   updateGlobalVariables();
   showArtworkChangeFeedback('Artwork changed (via Next button)');
-  updateUrlParam(); // <-- Add this line
+  updateUrlParam();
+  
   // --- Extra logging for debugging ---
   console.log('[NAV] After navigateToNext:', {
     current,
@@ -170,9 +219,38 @@ function updateGlobalVariables() {
   window.setCurrentProjectIdGlobal = setCurrentProjectIdGlobal;
   }
 
+// Function to check if navigation is ready
+function isNavigationReady() {
+  return projects && projects.length > 0 && options.projects && options.projects.length > 0;
+}
+
 // Expose navigation functions globally
 window.navigatePrevious = navigateToPrevious;
 window.navigateNext = navigateToNext;
+window.isNavigationReady = isNavigationReady;
+
+// Add a test function to verify navigation is working
+window.testNavigation = function() {
+  console.log('=== NAVIGATION TEST ===');
+  console.log('Current index:', current);
+  console.log('Projects:', projects.map(p => p.name));
+  console.log('Options projects:', options.projects);
+  console.log('Navigation ready:', isNavigationReady());
+  console.log('Navigate functions available:', {
+    navigatePrevious: typeof window.navigatePrevious,
+    navigateNext: typeof window.navigateNext,
+    isNavigationReady: typeof window.isNavigationReady
+  });
+  
+  // Test the navigation functions
+  console.log('Testing navigation functions...');
+  if (isNavigationReady()) {
+    console.log('✅ Navigation is ready');
+    console.log('Current project:', currentProject()?.name);
+  } else {
+    console.log('❌ Navigation is not ready');
+  }
+};
 
 // Expose other necessary variables and functions globally
 window.current = current;
@@ -361,11 +439,21 @@ const spinner = document.querySelector(".spinner");
 function disableButtons() {
   const prevBtn = document.getElementById('nav-prev-btn');
   const nextBtn = document.getElementById('nav-next-btn');
-  prevBtn.setAttribute("disabled", "");
-  nextBtn.setAttribute("disabled", "");
+  
+  if (prevBtn) {
+    prevBtn.setAttribute("disabled", "");
+  }
+  if (nextBtn) {
+    nextBtn.setAttribute("disabled", "");
+  }
+  
   setTimeout(() => {
-    prevBtn.removeAttribute("disabled");
-    nextBtn.removeAttribute("disabled");
+    if (prevBtn) {
+      prevBtn.removeAttribute("disabled");
+    }
+    if (nextBtn) {
+      nextBtn.removeAttribute("disabled");
+    }
   }, 2500);
 }
 
@@ -542,8 +630,7 @@ async function requestCameraOnce() {
 const gestureControlPlaylist = [
   "Shadows-Touch-Accross-Time",
   "Optical-Verlet",
-  "Dissolvi",
-  "Peer into the Flow"
+  "Dissolvi"
 ];
 
 const desktopPlaylist = [
@@ -616,16 +703,27 @@ const desktopPlaylist = [
     return filteredProjects.find(p => p.id === id);
   }
 
-  // Build the ordered playlist
+  // Combine API projects with static artworks
+  const allAvailableProjects = [...filteredProjects, ...staticArtworks];
+  
+  // Build the ordered playlist using the combined projects
   const orderedProjects = [
-    ...gestureControlPlaylist.map(getProjectById),
-    ...desktopPlaylist.map(getProjectById)
+    ...gestureControlPlaylist.map(id => allAvailableProjects.find(p => p.id === id)),
+    ...desktopPlaylist.map(id => allAvailableProjects.find(p => p.id === id))
   ].filter(Boolean); // Remove any not found
 
   projects = orderedProjects.length > 0 ? orderedProjects : staticArtworks;
+  
+  // Make filteredProjects available globally for playlist switching
+  window.filteredProjects = filteredProjects;
   options.projects = projects.map(p => p.id);
-  console.log("Navigation order:", options.projects);
-  console.log("Projects array:", projects.map(p => p.name));
+  console.log("=== PROJECT LOADING DEBUG ===");
+  console.log("Filtered projects from API:", filteredProjects.map(p => p.name));
+  console.log("Static artworks:", staticArtworks.map(p => p.name));
+  console.log("Combined all projects:", allAvailableProjects.map(p => p.name));
+  console.log("Final projects array:", projects.map(p => p.name));
+  console.log("Options projects (IDs):", options.projects);
+  console.log("=== END DEBUG ===");
 
   current = getIndexFromUrl();
   if (!projects[current]) current = 0;
@@ -646,6 +744,8 @@ const desktopPlaylist = [
   updateDetailsPanel(); // <-- add this
   disableButtons();
   setCurrentProjectIdGlobal();
+  
+  // Don't initialize playlist here - will be done in DOMContentLoaded
 })();
 
 function colorTrace(msg, color) {
@@ -717,22 +817,7 @@ window.addEventListener('popstate', () => {
 });
 // --- END popstate ---
 
-// Attach event listeners to visible nav buttons
-document.getElementById('nav-prev-btn').addEventListener('click', () => {
-  window.navigatePrevious && window.navigatePrevious();
-});
-document.getElementById('nav-next-btn').addEventListener('click', () => {
-  window.navigateNext && window.navigateNext();
-});
 
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') {
-    window.navigatePrevious && window.navigatePrevious();
-  } else if (e.key === 'ArrowRight') {
-    window.navigateNext && window.navigateNext();
-  }
-});
 
 // Add this function near your other helpers
 function updateDetailsPanel() {
@@ -755,3 +840,174 @@ function updateDetailsPanel() {
     }
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Attach event listeners to visible nav buttons
+  const prevBtn = document.getElementById('nav-prev-btn');
+  const nextBtn = document.getElementById('nav-next-btn');
+  
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      console.log('Previous button clicked');
+      if (window.isNavigationReady && window.isNavigationReady()) {
+        window.navigatePrevious && window.navigatePrevious();
+      } else {
+        console.error('Navigation not ready when previous button clicked');
+      }
+    });
+  } else {
+    console.error('Previous button not found!');
+  }
+  
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      console.log('Next button clicked');
+      if (window.isNavigationReady && window.isNavigationReady()) {
+        window.navigateNext && window.navigateNext();
+      } else {
+        console.error('Navigation not ready when next button clicked');
+      }
+    });
+  } else {
+    console.error('Next button not found!');
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      console.log('Left arrow pressed');
+      window.navigatePrevious && window.navigatePrevious();
+    } else if (e.key === 'ArrowRight') {
+      console.log('Right arrow pressed');
+      window.navigateNext && window.navigateNext();
+    }
+  });
+
+  const playlistButtons = document.querySelectorAll('.playlist-btn');
+  playlistButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Remove active class from all buttons
+      playlistButtons.forEach(b => b.classList.remove('active'));
+      // Add active class to clicked button
+      btn.classList.add('active');
+      // Switch playlist using your global function
+      const playlistId = btn.getAttribute('data-playlist');
+      if (window.switchPlaylist) {
+        window.switchPlaylist(playlistId);
+      }
+      // Update playlist header (optional, if not handled in switchPlaylist)
+      const playlistHeader = document.getElementById('playlist-header');
+      if (playlistHeader) {
+        const title = playlistHeader.querySelector('.playlist-title');
+        const desc = playlistHeader.querySelector('.playlist-description');
+        if (playlistId === 'gesture-control') {
+          title.textContent = 'Gesture Control – Interactive Experiences';
+          desc.textContent = 'Motion-controlled digital artworks that respond to your movements';
+        } else if (playlistId === 'desktop-experiences') {
+          title.textContent = 'Desktop Experiences';
+          desc.textContent = 'Interactive digital artworks for desktop viewing';
+        }
+      }
+    });
+  });
+  // Optionally, set the first button as active on load
+  if (playlistButtons[0]) playlistButtons[0].classList.add('active');
+  
+  // Initialize with the default playlist after everything is loaded
+  setTimeout(() => {
+    if (window.switchPlaylist) {
+      console.log('Initializing with gesture-control playlist...');
+      window.switchPlaylist('gesture-control');
+    } else {
+      console.error('switchPlaylist function not available');
+    }
+  }, 500);
+});
+
+// Define playlists
+const playlists = {
+  'gesture-control': {
+    name: 'Gesture Control – Interactive Experiences',
+    description: 'Motion-controlled digital artworks that respond to your movements',
+    artworks: ['Shadows Touch Across Time', 'Optical Verlet', 'Dissolvi']
+  },
+  'desktop-experiences': {
+    name: 'Desktop Experiences',
+    description: 'Interactive digital artworks for desktop viewing',
+    artworks: ['FIELDS', 'Faded Memories']
+  }
+};
+
+let currentPlaylistId = 'gesture-control'; // Default
+
+function switchPlaylist(playlistId) {
+  const playlist = playlists[playlistId];
+  if (!playlist) {
+    console.error('Playlist not found:', playlistId);
+    return;
+  }
+  currentPlaylistId = playlistId;
+  
+  // Get all available projects (from API and static)
+  let allProjects;
+  if (window.filteredProjects && window.filteredProjects.length > 0) {
+    // Combine API projects with static artworks
+    allProjects = [...window.filteredProjects, ...staticArtworks];
+  } else if (projects.length > 0) {
+    allProjects = projects;
+  } else {
+    allProjects = staticArtworks;
+  }
+  
+  // Debug: Log all available project names
+  console.log('=== SWITCH PLAYLIST DEBUG ===');
+  console.log('All available projects:', allProjects.map(p => p.name));
+  console.log('Looking for playlist artworks:', playlist.artworks);
+  console.log('Playlist ID:', playlistId);
+  
+  // Filter projects based on playlist artworks
+  const playlistProjects = allProjects.filter(project =>
+    playlist.artworks.includes(project.name)
+  );
+
+  console.log('Playlist projects found:', playlistProjects.map(p => p.name));
+
+  // Update the current projects array
+  projects = playlistProjects;
+  options.projects = projects.map(p => p.id);
+
+  // Reset to first artwork and ensure current is valid
+  current = 0;
+  if (current >= projects.length) current = 0;
+  
+  // For Gesture Control playlist, always start from the first artwork (Shadows Touch Accross Time)
+  if (playlistId === 'gesture-control') {
+    current = 0;
+  }
+
+  // Update viewer and details
+  if (projects.length > 0) {
+    viewer.setAttribute("url", getUrl());
+    updateDetailsPanel();
+    setCurrentProjectIdGlobal();
+    updateGlobalVariables();
+  } else {
+    console.warn('No projects found for playlist:', playlistId);
+  }
+
+  // Update URL
+  updateUrlParam();
+
+  // Update playlist header if present
+  const playlistHeader = document.getElementById('playlist-header');
+  if (playlistHeader) {
+    const title = playlistHeader.querySelector('.playlist-title');
+    const desc = playlistHeader.querySelector('.playlist-description');
+    if (title) title.textContent = playlist.name;
+    if (desc) desc.textContent = playlist.description;
+  }
+
+  console.log(`Switched to ${playlist.name} with ${projects.length} artworks`);
+}
+window.switchPlaylist = switchPlaylist;
+

@@ -36,9 +36,12 @@
 
 <body>
   <div id="playlist-header" class="playlist-header">
-    <div class="playlist-title">Gesture Control - Interactive Experiences</div>
+    <div class="playlist-title">Gesture Control – Interactive Experiences</div>
     <div class="playlist-description">Motion-controlled digital artworks that respond to your movements</div>
   </div>
+
+
+  <!-- Rest of your existing HTML -->
   <div id="playlist-label" class="playlist-label"></div>
   <!-- Navigation feedback indicator -->
   <div id="nav-feedback" class="nav-feedback"></div>
@@ -120,6 +123,13 @@
       </svg>
       <span style="color: #ffffff; font-size: 0.9rem; font-weight: 500;">Share</span>
     </button>
+  </div>
+
+
+
+  <div id="playlist-buttons" class="playlist-buttons">
+    <button class="playlist-btn" data-playlist="gesture-control">Gesture Control – Interactive Experiences</button>
+    <button class="playlist-btn" data-playlist="desktop-experiences">Desktop Experiences</button>
   </div>
 
   <script>
@@ -288,6 +298,78 @@
     // Expose the share function globally
     window.getCurrentArtworkInfo = getCurrentArtworkInfo;
 
+    // Playlist definitions
+    const playlists = {
+      'gesture-control': {
+        name: 'Gesture Control – Interactive Experiences',
+        description: 'Motion-controlled digital artworks that respond to your movements',
+        artworks: ['Shadows Touch Across Time', 'Optical Verlet', 'Dissolvi']
+      },
+      'desktop-experiences': {
+        name: 'Desktop Experiences',
+        description: 'Interactive digital artworks for desktop viewing',
+        artworks: ['FIELDS', 'Faded Memories']
+      }
+    };
+
+    // Current playlist state
+    let currentPlaylistId = 'gesture-control'; // Default
+
+    // Function to switch playlists
+    function switchPlaylist(playlistId) {
+      const playlist = playlists[playlistId];
+      if (!playlist) return;
+
+      // Use all available projects (API or static)
+      const allProjects = projects.length > 0 ? projects : staticArtworks;
+
+      // Filter by exact name match
+      const playlistProjects = allProjects.filter(project =>
+        playlist.artworks.includes(project.name)
+      );
+
+      projects = playlistProjects;
+      options.projects = projects.map(p => p.id);
+      current = 0;
+
+      if (projects.length > 0) {
+        viewer.setAttribute("url", getUrl());
+        updateDetailsPanel();
+        setCurrentProjectIdGlobal();
+        updateGlobalVariables();
+      }
+
+      updateUrlParam();
+      updatePlaylistHeader(playlistId); // Update header after switching playlists
+    }
+    window.switchPlaylist = switchPlaylist;
+
+    // Twitter handle mapping for all playlists
+    const twitterHandles = {
+      // Gesture Control Playlist
+      "Shadows Touch Across Time": "@epok_tech",
+      "Optical Verlet": "@xvijojo",
+      "Dissolvi": "@seigneurrrr",
+      "Peer into the Flow": "@peerintotheflow",
+
+      // Desktop Experiences Playlist
+      "FIELDS": "@fields_art",
+      "Faded Memories": "@faded_memories_art", // Add actual handle
+      "Morphed Radiance": "@morphed_radiance",
+      "Meanwhile": "@meanwhile_art" // Add actual handle
+    };
+
+    // Get current playlist name for share text
+    function getCurrentPlaylistName() {
+      const playlistHeader = document.getElementById('playlist-header');
+      if (playlistHeader) {
+        const title = playlistHeader.querySelector('.playlist-title');
+        return title ? title.textContent : 'Olta Playlist';
+      }
+      return 'Olta Playlist';
+    }
+
+    // Update the share button event listener
     document.getElementById('share-btn').addEventListener('click', async () => {
       console.log('Share button clicked!');
 
@@ -308,22 +390,15 @@
         if (nameSlot) projectName = nameSlot.textContent || '';
       }
 
-      // Twitter handle mapping for gesture control playlist
-      const twitterHandles = {
-        "Shadows Touch Accross Time": "@epok_tech",
-        "Optical Verlet": "@xvijojo",
-        "Dissolvi": "@seigneurrrr",
-        "Peer into the Flow": "@peerintotheflow"
-      };
-
       const twitterHandle = twitterHandles[projectName] || '';
+      const playlistName = getCurrentPlaylistName();
 
       // Build tweet text
       let tweetText = `Check out "${projectName}"`;
       if (twitterHandle) {
         tweetText += ` by ${twitterHandle}`;
       }
-      tweetText += ` from the Gesture Control - Interactive Experiences playlist on Olta! ${playlistUrl}`;
+      tweetText += ` from the ${playlistName} on Olta! ${playlistUrl}`;
 
       console.log('Tweet text:', tweetText);
 
@@ -603,6 +678,69 @@
       // }
     });
 
+    // Playlist selector functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const playlistToggle = document.getElementById('playlist-toggle');
+      const playlistDropdown = document.getElementById('playlist-dropdown');
+      const currentPlaylistName = document.getElementById('current-playlist-name');
+
+      if (playlistToggle && playlistDropdown) {
+        // Toggle dropdown
+        playlistToggle.addEventListener('click', () => {
+          playlistDropdown.classList.toggle('show');
+          playlistToggle.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!playlistToggle.contains(e.target) && !playlistDropdown.contains(e.target)) {
+            playlistDropdown.classList.remove('show');
+            playlistToggle.classList.remove('active');
+          }
+        });
+
+        // Handle playlist selection
+        const playlistOptions = document.querySelectorAll('.playlist-option');
+        playlistOptions.forEach(option => {
+          option.addEventListener('click', () => {
+            const playlistId = option.dataset.playlist;
+            const playlistTitle = option.querySelector('.playlist-option-title').textContent;
+
+            // Update UI
+            currentPlaylistName.textContent = playlistTitle;
+            playlistOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+
+            // Close dropdown
+            playlistDropdown.classList.remove('show');
+            playlistToggle.classList.remove('active');
+
+            // Switch playlists using the main.js function
+            if (window.switchPlaylist && typeof window.switchPlaylist === 'function') {
+              window.switchPlaylist(playlistId);
+            } else {
+              console.error('switchPlaylist function not available');
+            }
+
+            // Update playlist header
+            const playlistHeader = document.getElementById('playlist-header');
+            if (playlistHeader) {
+              const title = playlistHeader.querySelector('.playlist-title');
+              const desc = playlistHeader.querySelector('.playlist-description');
+
+              if (playlistId === 'gesture-control') {
+                title.textContent = 'Gesture Control - Interactive Experiences';
+                desc.textContent = 'Motion-controlled digital artworks that respond to your movements';
+              } else if (playlistId === 'desktop-experiences') {
+                title.textContent = 'Desktop Experiences';
+                desc.textContent = 'Interactive digital artworks for desktop viewing';
+              }
+            }
+          });
+        });
+      }
+    });
+
     // Update top navigation button states when projects change
     function updateTopNavButtonStates() {
       const topPrevBtn = document.getElementById('nav-prev-btn');
@@ -623,6 +761,97 @@
 
     // Initial state update
     setTimeout(updateTopNavButtonStates, 2500);
+
+    // Function to update the playlist header dynamically
+    function updatePlaylistHeader(playlistId) {
+      const playlistHeader = document.getElementById('playlist-header');
+      if (!playlistHeader) return;
+      const title = playlistHeader.querySelector('.playlist-title');
+      const desc = playlistHeader.querySelector('.playlist-description');
+
+      const playlists = {
+        'gesture-control': {
+          name: 'Gesture Control – Interactive Experiences',
+          description: 'Motion-controlled digital artworks that respond to your movements'
+        },
+        'desktop-experiences': {
+          name: 'Desktop Experiences',
+          description: 'Interactive digital artworks for desktop viewing'
+        }
+      };
+
+      if (playlists[playlistId]) {
+        title.textContent = playlists[playlistId].name;
+        desc.textContent = playlists[playlistId].description;
+      }
+    }
+
+    document.querySelectorAll('.playlist-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.playlist-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        window.switchPlaylist(btn.getAttribute('data-playlist'));
+      });
+    });
+
+    // Set the first button (Gesture Control) as active by default
+    const firstPlaylistBtn = document.querySelector('.playlist-btn');
+    if (firstPlaylistBtn) {
+      firstPlaylistBtn.classList.add('active');
+    }
+
+    // Navigation button event listeners - Simplified and more robust
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Setting up navigation buttons...');
+
+      const prevBtn = document.getElementById('nav-prev-btn');
+      const nextBtn = document.getElementById('nav-next-btn');
+
+      console.log('Navigation buttons found:', { prevBtn, nextBtn });
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          console.log('Previous button clicked - calling navigatePrevious');
+          console.log('window.navigatePrevious available:', typeof window.navigatePrevious);
+
+          if (window.navigatePrevious && typeof window.navigatePrevious === 'function') {
+            window.navigatePrevious();
+          } else {
+            console.error('navigatePrevious function not available!');
+          }
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          console.log('Next button clicked - calling navigateNext');
+          console.log('window.navigateNext available:', typeof window.navigateNext);
+
+          if (window.navigateNext && typeof window.navigateNext === 'function') {
+            window.navigateNext();
+          } else {
+            console.error('navigateNext function not available!');
+          }
+        });
+      }
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          console.log('Left arrow key pressed');
+          if (window.navigatePrevious && typeof window.navigatePrevious === 'function') {
+            window.navigatePrevious();
+          }
+        } else if (e.key === 'ArrowRight') {
+          console.log('Right arrow key pressed');
+          if (window.navigateNext && typeof window.navigateNext === 'function') {
+            window.navigateNext();
+          }
+        }
+      });
+    });
   </script>
 </body>
 
