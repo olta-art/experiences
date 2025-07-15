@@ -127,9 +127,15 @@
 
 
 
-  <div id="playlist-buttons" class="playlist-buttons">
-    <button class="playlist-btn" data-playlist="gesture-control">Gesture Control – Interactive Experiences</button>
-    <button class="playlist-btn" data-playlist="desktop-experiences">Desktop Experiences</button>
+  <!-- Remove playlist-buttons -->
+  <!-- Add playlist dropdown -->
+  <div id="playlist-dropdown-container" style="position:fixed;top:1rem;left:1rem;z-index:1200;">
+    <label for="playlist-dropdown" style="display:none;">Choose playlist</label>
+    <select id="playlist-dropdown"
+      style="background:rgba(0,0,0,0.7);color:#7be7b8;border:1px solid #7be7b8;border-radius:0.3rem;padding:0.3rem 0.8rem;font-size:0.9rem;outline:none;">
+      <option value="gesture-control" selected>Gesture Control – Interactive Experiences</option>
+      <option value="desktop-experiences">Desktop Experiences</option>
+    </select>
   </div>
 
   <script>
@@ -308,7 +314,7 @@
       'desktop-experiences': {
         name: 'Desktop Experiences',
         description: 'Interactive digital artworks for desktop viewing',
-        artworks: ['FIELDS', 'Faded Memories']
+        artworks: ['FIELDS', 'Morphed Radiance']
       }
     };
 
@@ -317,26 +323,31 @@
 
     // Function to switch playlists
     function switchPlaylist(playlistId) {
+      clearInterval(projectInterval); // Always clear interval first
       const playlist = playlists[playlistId];
       if (!playlist) return;
 
       // Use all available projects (API or static)
-      const allProjects = projects.length > 0 ? projects : staticArtworks;
-
-      // Filter by exact name match
-      const playlistProjects = allProjects.filter(project =>
-        playlist.artworks.includes(project.name)
-      );
+      let allProjects = [...window.filteredProjects, ...staticArtworks];
+      console.log('[DEBUG] Filtering for playlist:', playlist.artworks);
+      console.log('[DEBUG] All available projects:', allProjects.map(p => p.name));
+      const playlistProjects = playlist.artworks
+        .map(name => allProjects.find(project => project.name === name))
+        .filter(Boolean);
 
       projects = playlistProjects;
       options.projects = projects.map(p => p.id);
-      current = 0;
+      current = 0; // Always reset to first artwork
 
       if (projects.length > 0) {
         viewer.setAttribute("url", getUrl());
         updateDetailsPanel();
         setCurrentProjectIdGlobal();
         updateGlobalVariables();
+        updateUrlParam(); // Set URL param after viewer is updated
+        startProjectInterval(); // Start interval AFTER everything is set
+      } else {
+        console.warn('No projects found for playlist:', playlistId);
       }
 
       updateUrlParam();
@@ -852,6 +863,19 @@
         }
       });
     });
+
+    // Auto-advance interval logic
+    let projectInterval = null;
+
+    // Update startProjectInterval to use setInterval only, and do NOT call navigateNext immediately
+    function startProjectInterval() {
+      clearInterval(projectInterval);
+      projectInterval = setInterval(() => {
+        if (window.navigateNext && window.isNavigationReady && window.isNavigationReady()) {
+          window.navigateNext();
+        }
+      }, 10000); // 10 seconds for quick testing
+    }
   </script>
 </body>
 

@@ -706,46 +706,29 @@ const desktopPlaylist = [
   // Combine API projects with static artworks
   const allAvailableProjects = [...filteredProjects, ...staticArtworks];
   
-  // Build the ordered playlist using the combined projects
+  // (You can keep orderedProjects if you want for debugging, but don't assign to global state)
   const orderedProjects = [
     ...gestureControlPlaylist.map(id => allAvailableProjects.find(p => p.id === id)),
     ...desktopPlaylist.map(id => allAvailableProjects.find(p => p.id === id))
-  ].filter(Boolean); // Remove any not found
+  ].filter(Boolean);
 
-  projects = orderedProjects.length > 0 ? orderedProjects : staticArtworks;
-  
   // Make filteredProjects available globally for playlist switching
   window.filteredProjects = filteredProjects;
-  options.projects = projects.map(p => p.id);
+
+  // Optionally: log for debugging
   console.log("=== PROJECT LOADING DEBUG ===");
   console.log("Filtered projects from API:", filteredProjects.map(p => p.name));
   console.log("Static artworks:", staticArtworks.map(p => p.name));
   console.log("Combined all projects:", allAvailableProjects.map(p => p.name));
-  console.log("Final projects array:", projects.map(p => p.name));
-  console.log("Options projects (IDs):", options.projects);
+  console.log("Ordered projects (for debug):", orderedProjects.map(p => p.name));
   console.log("=== END DEBUG ===");
 
-  current = getIndexFromUrl();
-  if (!projects[current]) current = 0;
-
+  // Only render options if needed for UI
   renderOptions();
 
-  if (!projects.length) {
-    console.error("No projects to display!");
-    return;
-  }
-  if (!projects[current]) {
-    console.error("Current project is undefined!");
-    return;
-  }
-
-  seed = getRandSeed(seed, projects[current].editionSize);
-  viewer.setAttribute("url", getUrl());
-  updateDetailsPanel(); // <-- add this
-  disableButtons();
-  setCurrentProjectIdGlobal();
-  
-  // Don't initialize playlist here - will be done in DOMContentLoaded
+  // Do NOT set projects, options.projects, or current here!
+  // Do NOT update viewer, details, or URL here!
+  // All playlist setup and initial state will be handled by switchPlaylist in DOMContentLoaded
 })();
 
 function colorTrace(msg, color) {
@@ -848,54 +831,37 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (prevBtn) {
     prevBtn.addEventListener('click', () => {
-      console.log('Previous button clicked');
       if (window.isNavigationReady && window.isNavigationReady()) {
         window.navigatePrevious && window.navigatePrevious();
-      } else {
-        console.error('Navigation not ready when previous button clicked');
       }
     });
-  } else {
-    console.error('Previous button not found!');
   }
-  
   if (nextBtn) {
     nextBtn.addEventListener('click', () => {
-      console.log('Next button clicked');
       if (window.isNavigationReady && window.isNavigationReady()) {
         window.navigateNext && window.navigateNext();
-      } else {
-        console.error('Navigation not ready when next button clicked');
       }
     });
-  } else {
-    console.error('Next button not found!');
   }
 
   // Keyboard navigation
   document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') {
-      console.log('Left arrow pressed');
       window.navigatePrevious && window.navigatePrevious();
     } else if (e.key === 'ArrowRight') {
-      console.log('Right arrow pressed');
       window.navigateNext && window.navigateNext();
     }
   });
 
-  const playlistButtons = document.querySelectorAll('.playlist-btn');
-  playlistButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Remove active class from all buttons
-      playlistButtons.forEach(b => b.classList.remove('active'));
-      // Add active class to clicked button
-      btn.classList.add('active');
-      // Switch playlist using your global function
-      const playlistId = btn.getAttribute('data-playlist');
+  // Playlist dropdown logic
+  const playlistDropdown = document.getElementById('playlist-dropdown');
+  if (playlistDropdown) {
+    playlistDropdown.addEventListener('change', (e) => {
+      const playlistId = playlistDropdown.value;
       if (window.switchPlaylist) {
         window.switchPlaylist(playlistId);
       }
-      // Update playlist header (optional, if not handled in switchPlaylist)
+      // Update playlist header
       const playlistHeader = document.getElementById('playlist-header');
       if (playlistHeader) {
         const title = playlistHeader.querySelector('.playlist-title');
@@ -909,19 +875,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
-  });
-  // Optionally, set the first button as active on load
-  if (playlistButtons[0]) playlistButtons[0].classList.add('active');
-  
-  // Initialize with the default playlist after everything is loaded
-  setTimeout(() => {
-    if (window.switchPlaylist) {
-      console.log('Initializing with gesture-control playlist...');
-      window.switchPlaylist('gesture-control');
-    } else {
-      console.error('switchPlaylist function not available');
-    }
-  }, 500);
+  }
+
+  // Set default playlist on load
+  if (window.switchPlaylist) {
+    console.log('[INIT] Calling switchPlaylist("gesture-control") after all projects are loaded');
+    window.switchPlaylist('gesture-control');
+  }
 });
 
 // Define playlists
@@ -941,6 +901,7 @@ const playlists = {
 let currentPlaylistId = 'gesture-control'; // Default
 
 function switchPlaylist(playlistId) {
+  console.log('[SWITCH] Switching to playlist:', playlistId);
   const playlist = playlists[playlistId];
   if (!playlist) {
     console.error('Playlist not found:', playlistId);

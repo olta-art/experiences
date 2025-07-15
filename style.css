@@ -744,3 +744,17 @@ button.carousel-nav-btn:focus,
     padding: 0.25rem 0.5rem;
   }
 }
+
+let projectInterval=null;
+
+function startProjectInterval() {
+  clearInterval(projectInterval);
+
+  projectInterval=setInterval(()=> {
+      if (window.navigateNext && window.isNavigationReady && window.isNavigationReady()) {
+        window.navigateNext();
+      }
+    }
+
+    , 45000); // 45 seconds, adjust as needed
+}
