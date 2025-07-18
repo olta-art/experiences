@@ -39,20 +39,20 @@ const staticArtworks = [
     lastAddedVersion: {
       animation: { url: "https://dissolvi-olta.vercel.app/" }
     },
-    qrCodeUrl: "https://omar-lobato.com"
+    qrCodeUrl: "https://x.com/seigneurrrr?lang=en"
   },
 
   {
     id: "Faded-Memories",
     name: "Faded Memories",
     description: "Interactive desktop artwork.",
-    creator: { profile: { name: "Artist Name" } },
+    creator: { profile: { name: "Terence Reilly" } },
     editionSize: 1,
     symbol: "STATIC2",
     lastAddedVersion: {
-      animation: { url: "https://faded-memories-artwork-url.com/" }
+      animation: { url: "https://t53i3e4bahzkre6tmylkgv32exvfjvrwa5c5o4t6td46ja5kr63q.arweave.net/n3aNk4EB8qiT02YWo1d6JepU1jYHRddyfpj55IOqj7c/?id=1&address=0x8f676434eecd5c69e00e89d7c0421faf8dfea1d9&seed=1" }
     },
-    qrCodeUrl: "https://artist-website.com"
+    qrCodeUrl: "https://www.terencereilly.com/"
   }
   
 ];
@@ -102,6 +102,9 @@ function navigateToPrevious() {
   current = decrementLoop(current, options.projects.length);
   console.log('[NAV] New current index:', current);
   
+  if (currentProject() && currentProject().editionSize > 1) {
+    seed = getRandSeed(seed, currentProject().editionSize);
+  }
   const newUrl = getUrl();
   console.log('[NAV] New URL:', newUrl);
   
@@ -139,6 +142,9 @@ function navigateToNext() {
   current = incrementLoop(current, options.projects.length);
   console.log('[NAV] New current index:', current);
   
+  if (currentProject() && currentProject().editionSize > 1) {
+    seed = getRandSeed(seed, currentProject().editionSize);
+  }
   const newUrl = getUrl();
   console.log('[NAV] New URL:', newUrl);
   
@@ -721,6 +727,7 @@ const desktopPlaylist = [
   console.log("Static artworks:", staticArtworks.map(p => p.name));
   console.log("Combined all projects:", allAvailableProjects.map(p => p.name));
   console.log("Ordered projects (for debug):", orderedProjects.map(p => p.name));
+  console.log('All available project IDs:', allAvailableProjects.map(p => p.id));
   console.log("=== END DEBUG ===");
 
   // Only render options if needed for UI
@@ -889,12 +896,16 @@ const playlists = {
   'gesture-control': {
     name: 'Gesture Control – Interactive Experiences',
     description: 'Motion-controlled digital artworks that respond to your movements',
-    artworks: ['Shadows Touch Across Time', 'Optical Verlet', 'Dissolvi']
+    artworks: ['Shadows-Touch-Across-Time', 'Optical-Verlet', 'Dissolvi']
   },
   'desktop-experiences': {
     name: 'Desktop Experiences',
     description: 'Interactive digital artworks for desktop viewing',
-    artworks: ['FIELDS', 'Faded Memories']
+    artworks: [
+      '0x510da17477baa0a23858c59e9bf80b8d8ad1b6ee', // FIELDS
+      'Faded-Memories',
+      '0xe94100850ee7507dd57eb1ba67dc0600b18122df' // Morphed Radiance
+    ]
   }
 };
 
@@ -920,34 +931,36 @@ function switchPlaylist(playlistId) {
     allProjects = staticArtworks;
   }
   
-  // Debug: Log all available project names
-  console.log('=== SWITCH PLAYLIST DEBUG ===');
-  console.log('All available projects:', allProjects.map(p => p.name));
-  console.log('Looking for playlist artworks:', playlist.artworks);
-  console.log('Playlist ID:', playlistId);
-  
-  // Filter projects based on playlist artworks
-  const playlistProjects = allProjects.filter(project =>
-    playlist.artworks.includes(project.name)
-  );
+  // Build playlist by ID (not name)
+  const playlistProjects = playlist.artworks
+    .map(id => allProjects.find(project => project.id === id))
+    .filter(Boolean);
 
-  console.log('Playlist projects found:', playlistProjects.map(p => p.name));
-
-  // Update the current projects array
   projects = playlistProjects;
   options.projects = projects.map(p => p.id);
 
-  // Reset to first artwork and ensure current is valid
-  current = 0;
-  if (current >= projects.length) current = 0;
-  
-  // For Gesture Control playlist, always start from the first artwork (Shadows Touch Accross Time)
-  if (playlistId === 'gesture-control') {
+  // Set current based on URL param if present
+  const params = new URLSearchParams(window.location.search);
+  const artworkId = params.get('artwork');
+  let idx = 0;
+  if (artworkId) {
+    idx = options.projects.findIndex(id => id.toLowerCase() === artworkId.toLowerCase());
+    if (idx === -1) {
+      idx = 0;
+    }
+  }
+  current = idx;
+
+  // For Gesture Control or Desktop Experiences playlist, always start from the first artwork if no artwork param
+  if ((playlistId === 'gesture-control' || playlistId === 'desktop-experiences') && !artworkId) {
     current = 0;
   }
 
   // Update viewer and details
   if (projects.length > 0) {
+    if (currentProject().editionSize > 1) {
+      seed = getRandSeed(seed, currentProject().editionSize);
+    }
     viewer.setAttribute("url", getUrl());
     updateDetailsPanel();
     setCurrentProjectIdGlobal();

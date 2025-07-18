@@ -330,14 +330,35 @@
       // Use all available projects (API or static)
       let allProjects = [...window.filteredProjects, ...staticArtworks];
       console.log('[DEBUG] Filtering for playlist:', playlist.artworks);
-      console.log('[DEBUG] All available projects:', allProjects.map(p => p.name));
+      console.log('playlist.artworks:', playlist.artworks);
+      console.log('All available projects:', allProjects.map(p => p.name));
       const playlistProjects = playlist.artworks
-        .map(name => allProjects.find(project => project.name === name))
+        .map(id => allProjects.find(project => project.id === id))
         .filter(Boolean);
-
       projects = playlistProjects;
       options.projects = projects.map(p => p.id);
-      current = 0; // Always reset to first artwork
+
+      // Set current based on URL param if present
+      const params = new URLSearchParams(window.location.search);
+      const artworkId = params.get('artwork');
+      let idx = 0;
+      if (artworkId) {
+        idx = options.projects.findIndex(id => id.toLowerCase() === artworkId.toLowerCase());
+        if (idx === -1) {
+          idx = projects.findIndex(p => p.name.toLowerCase() === artworkId.toLowerCase());
+          if (idx !== -1) {
+            idx = options.projects.findIndex(id => id === projects[idx].id);
+          } else {
+            idx = 0;
+          }
+        }
+      }
+      current = idx;
+
+      // Only update the URL if it doesn't match
+      if (!artworkId || projects[current].id.toLowerCase() !== artworkId.toLowerCase()) {
+        updateUrlParam(true); // Use replaceState to avoid adding to history
+      }
 
       if (projects.length > 0) {
         viewer.setAttribute("url", getUrl());
@@ -382,38 +403,62 @@
 
     // Update the share button event listener
     document.getElementById('share-btn').addEventListener('click', async () => {
-      console.log('Share button clicked!');
+      // Get current artwork info
+      const detailsElement = document.querySelector('o-details');
+      let projectName = '';
+      let artistName = '';
+      if (detailsElement && detailsElement.shadowRoot) {
+        const nameSlot = detailsElement.shadowRoot.querySelector('slot[name="name"]');
+        const creatorSlot = detailsElement.shadowRoot.querySelector('slot[name="creator"]');
+        if (nameSlot) projectName = nameSlot.textContent || '';
+        if (creatorSlot) artistName = creatorSlot.textContent || '';
+      }
 
-      // Copy URL to clipboard
-      const playlistUrl = window.location.href;
+      // Get Twitter handle for this artwork
+      const twitterHandles = {
+        "Shadows Touch Across Time": "@epok_tech",
+        "Optical Verlet": "@xvijojo",
+        "Dissolvi": "@seigneurrrr",
+        "FIELDS": "@fields_art",
+        "Faded Memories": "@faded_memories_art",
+        "Morphed Radiance": "@morphed_radiance",
+        "Meanwhile": "@meanwhile_art"
+      };
+      const twitterHandle = twitterHandles[projectName] || '';
+
+      // Get current playlist info
+      const playlistDropdown = document.getElementById('playlist-dropdown');
+      let playlistId = 'gesture-control';
+      let playlistName = 'Gesture Control – Interactive Experiences';
+      if (playlistDropdown) {
+        playlistId = playlistDropdown.value;
+        playlistName = playlistDropdown.options[playlistDropdown.selectedIndex].text;
+      }
+
+      // Build URLs
+      const baseUrl = window.location.origin + window.location.pathname;
+      const artworkId = window.currentProjectId || '';
+      const artworkUrl = `${baseUrl}?artwork=${encodeURIComponent(artworkId)}`;
+      const playlistUrl = `${baseUrl}?playlist=${encodeURIComponent(playlistId)}`;
+
+      // Build share text
+      let tweetText = `Check out "${projectName}"`;
+      if (twitterHandle) {
+        tweetText += ` by ${twitterHandle}`;
+      } else if (artistName) {
+        tweetText += ` by ${artistName}`;
+      }
+      tweetText += ` from the ${playlistName} playlist on Olta! ${artworkUrl}\nSee the full playlist: ${playlistUrl}`;
+
+      // Copy to clipboard
       try {
-        await navigator.clipboard.writeText(playlistUrl);
-        console.log('Copied to clipboard:', playlistUrl);
+        await navigator.clipboard.writeText(tweetText);
+        alert('Share text copied to clipboard!');
       } catch (err) {
         console.warn('Could not copy to clipboard:', err);
       }
 
-      // Get current artwork name from DOM
-      const detailsElement = document.querySelector('o-details');
-      let projectName = '';
-      if (detailsElement && detailsElement.shadowRoot) {
-        const nameSlot = detailsElement.shadowRoot.querySelector('slot[name="name"]');
-        if (nameSlot) projectName = nameSlot.textContent || '';
-      }
-
-      const twitterHandle = twitterHandles[projectName] || '';
-      const playlistName = getCurrentPlaylistName();
-
-      // Build tweet text
-      let tweetText = `Check out "${projectName}"`;
-      if (twitterHandle) {
-        tweetText += ` by ${twitterHandle}`;
-      }
-      tweetText += ` from the ${playlistName} on Olta! ${playlistUrl}`;
-
-      console.log('Tweet text:', tweetText);
-
-      // Open Twitter
+      // Optionally, open Twitter with the text pre-filled
       const encodedTweetText = encodeURIComponent(tweetText);
       const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedTweetText}`;
       window.open(twitterUrl, '_blank');
@@ -876,6 +921,28 @@
         }
       }, 10000); // 10 seconds for quick testing
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const shareArtworkBtn = document.getElementById('share-artwork-btn');
+      if (shareArtworkBtn) {
+        shareArtworkBtn.addEventListener('click', async () => {
+          const artworkId = window.currentProjectId || '';
+          const url = `${window.location.origin}${window.location.pathname}?artwork=${encodeURIComponent(artworkId)}`;
+          await navigator.clipboard.writeText(url);
+          alert('Artwork link copied!');
+          // Optionally open Twitter, etc.
+        });
+      }
+    });
+
+    document.getElementById('share-playlist-btn').addEventListener('click', async () => {
+      const playlistDropdown = document.getElementById('playlist-dropdown');
+      const playlistId = playlistDropdown ? playlistDropdown.value : 'gesture-control';
+      const url = `${window.location.origin}${window.location.pathname}?playlist=${encodeURIComponent(playlistId)}`;
+      await navigator.clipboard.writeText(url);
+      alert('Playlist link copied!');
+      // Optionally open Twitter, etc.
+    });
   </script>
 </body>
 
