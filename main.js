@@ -886,8 +886,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set default playlist on load
   if (window.switchPlaylist) {
-    console.log('[INIT] Calling switchPlaylist("gesture-control") after all projects are loaded');
-    window.switchPlaylist('gesture-control');
+    console.log('[INIT] Calling switchPlaylist after all projects are loaded');
+    
+    // Check if there's a specific artwork in the URL
+    const params = new URLSearchParams(window.location.search);
+    const artworkId = params.get('artwork');
+    
+    if (artworkId) {
+      // Determine which playlist contains this artwork
+      let targetPlaylist = 'gesture-control'; // default
+      
+      // Check if artwork is in desktop-experiences playlist
+      const desktopPlaylist = playlists['desktop-experiences'].artworks;
+      if (desktopPlaylist.some(id => id.toLowerCase() === artworkId.toLowerCase())) {
+        targetPlaylist = 'desktop-experiences';
+      }
+      // Check if artwork is in gesture-control playlist
+      const gesturePlaylist = playlists['gesture-control'].artworks;
+      if (gesturePlaylist.some(id => id.toLowerCase() === artworkId.toLowerCase())) {
+        targetPlaylist = 'gesture-control';
+      }
+      
+      console.log(`[INIT] Artwork ${artworkId} found in ${targetPlaylist} playlist`);
+      window.switchPlaylist(targetPlaylist);
+    } else {
+      // No specific artwork, use default
+      window.switchPlaylist('gesture-control');
+    }
   }
 });
 
