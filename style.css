@@ -290,6 +290,84 @@ button:disabled {
   cursor: url("./assets/cursor.png") 15 15, pointer;
 }
 
+/* Top Status Bars - Left and Right aligned */
+#top-left-status-bar {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: rgba(10, 10, 10, 0.18);
+  border-radius: 1.1rem;
+  padding: 0.2rem 0.5rem;
+  box-shadow: none;
+  backdrop-filter: blur(6px);
+  z-index: 20;
+  font-size: 0.5rem;
+  min-height: 0.2rem;
+}
+
+#top-left-status-bar,
+#top-left-status-bar * {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+#playlist-dropdown {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+#playlist-dropdown:focus {
+  outline: none;
+}
+
+#playlist-dropdown option {
+  background: rgba(10, 10, 10, 0.95);
+  color: #fff;
+  padding: 0.5rem;
+}
+
+/* Update playlist header to be positioned better */
+.playlist-header {
+  position: fixed;
+  top: 6rem;
+  left: 2rem;
+  z-index: 15;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1rem 1.5rem;
+  border-radius: 0.8rem;
+  max-width: 400px;
+  backdrop-filter: blur(4px);
+}
+
+.playlist-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #7be7b8;
+  line-height: 1.2;
+}
+
+.playlist-description {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
 #top-status-bar {
   position: fixed;
   top: 2rem;
@@ -310,6 +388,65 @@ button:disabled {
 #top-status-bar,
 #top-status-bar * {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+/* Mobile responsive adjustments for top status bars */
+@media (max-width: 768px) {
+
+  #top-left-status-bar,
+  #top-status-bar {
+    top: 0.5rem;
+    padding: 0.15rem 0.4rem;
+    gap: 0.5rem;
+  }
+
+  #top-left-status-bar {
+    left: 0.5rem;
+  }
+
+  #top-status-bar {
+    right: 0.5rem;
+  }
+
+  .playlist-header {
+    top: 4rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    max-width: none;
+    padding: 0.8rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+
+  #top-left-status-bar,
+  #top-status-bar {
+    top: 0.3rem;
+    padding: 0.1rem 0.3rem;
+  }
+
+  #top-left-status-bar {
+    left: 0.3rem;
+  }
+
+  #top-status-bar {
+    right: 0.3rem;
+  }
+
+  .playlist-header {
+    top: 3rem;
+    left: 0.3rem;
+    right: 0.3rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .playlist-title {
+    font-size: 1rem;
+  }
+
+  .playlist-description {
+    font-size: 0.75rem;
+  }
 }
 
 #viewer-counter,
@@ -743,18 +880,4 @@ button.carousel-nav-btn:focus,
     font-size: 0.7rem;
     padding: 0.25rem 0.5rem;
   }
-}
-
-let projectInterval=null;
-
-function startProjectInterval() {
-  clearInterval(projectInterval);
-
-  projectInterval=setInterval(()=> {
-      if (window.navigateNext && window.isNavigationReady && window.isNavigationReady()) {
-        window.navigateNext();
-      }
-    }
-
-    , 45000); // 45 seconds, adjust as needed
 }

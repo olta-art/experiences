@@ -35,9 +35,62 @@
 </head>
 
 <body>
+  <!-- Top Left Status Bar for Playlist Selection -->
+  <div id="top-left-status-bar">
+    <span class="status-icon" aria-label="Playlist selector">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="4" width="18" height="2" rx="1" fill="#7be7b8" />
+        <rect x="3" y="8" width="18" height="2" rx="1" fill="#7be7b8" />
+        <rect x="3" y="12" width="18" height="2" rx="1" fill="#7be7b8" />
+        <rect x="3" y="16" width="18" height="2" rx="1" fill="#7be7b8" />
+      </svg>
+    </span>
+    <select id="playlist-dropdown">
+      <option value="gesture-control" selected>Gesture Control</option>
+      <option value="desktop-experiences">Desktop Experiences</option>
+    </select>
+  </div>
+
+  <!-- Playlist Header - Repositioned and Styled -->
   <div id="playlist-header" class="playlist-header">
     <div class="playlist-title">Gesture Control – Interactive Experiences</div>
     <div class="playlist-description">Motion-controlled digital artworks that respond to your movements</div>
+  </div>
+
+  <!-- Top Right Status Bar (existing) -->
+  <div id="top-status-bar">
+    <span id="viewer-counter">
+      <span class="status-icon" aria-label="Live viewers">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="7" r="4" stroke="#7be7b8" stroke-width="1.5" />
+          <ellipse cx="10" cy="15" rx="7" ry="3" stroke="#7be7b8" stroke-width="1.5" />
+        </svg>
+      </span>
+      Live viewers: <span id="viewer-count">0</span>
+    </span>
+    <span class="status-divider"></span>
+    <button id="heart-btn" aria-label="Show appreciation">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          fill="currentColor" stroke="currentColor" stroke-width="0.5" />
+      </svg>
+    </button>
+    <span id="heart-count">0</span>
+    <span class="status-divider"></span>
+    <button id="share-btn" aria-label="Share"
+      style="background: none; border: none; cursor: pointer; padding: 0 0.1rem; margin-left: 0.3rem; display: flex; align-items: center; gap: 0.3rem;">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 8V5a3 3 0 0 0-6 0v3" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" />
+        <path d="M10 12v-1" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M5 8v7a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" />
+        <path d="M10 12l-2-2m2 2l2-2" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg>
+      <span style="color: #ffffff; font-size: 0.9rem; font-weight: 500;">Share</span>
+    </button>
   </div>
 
 
@@ -89,54 +142,7 @@
     </div>
     <form id="options-form"></form>
   </dialog>
-  <div id="top-status-bar">
-    <span id="viewer-counter">
-      <span class="status-icon" aria-label="Live viewers">
-        <!-- Modern user SVG icon -->
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-          <circle cx="10" cy="7" r="4" stroke="#7be7b8" stroke-width="1.5" />
-          <ellipse cx="10" cy="15" rx="7" ry="3" stroke="#7be7b8" stroke-width="1.5" />
-        </svg>
-      </span>
-      Live viewers: <span id="viewer-count">0</span>
-    </span>
-    <span class="status-divider"></span>
-    <button id="heart-btn" aria-label="Show appreciation">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-          fill="currentColor" stroke="currentColor" stroke-width="0.5" />
-      </svg>
-    </button>
-    <span id="heart-count">0</span>
-    <span class="status-divider"></span>
-    <button id="share-btn" aria-label="Share"
-      style="background: none; border: none; cursor: pointer; padding: 0 0.1rem; margin-left: 0.3rem; display: flex; align-items: center; gap: 0.3rem;">
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 8V5a3 3 0 0 0-6 0v3" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round"
-          stroke-linejoin="round" />
-        <path d="M10 12v-1" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M5 8v7a3 3 0 0 0 3 3h4a3 3 0 0 0 3-3V8" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round"
-          stroke-linejoin="round" />
-        <path d="M10 12l-2-2m2 2l2-2" stroke="#7be7b8" stroke-width="1.5" stroke-linecap="round"
-          stroke-linejoin="round" />
-      </svg>
-      <span style="color: #ffffff; font-size: 0.9rem; font-weight: 500;">Share</span>
-    </button>
-  </div>
 
-
-
-  <!-- Remove playlist-buttons -->
-  <!-- Add playlist dropdown -->
-  <div id="playlist-dropdown-container" style="position:fixed;top:1rem;left:1rem;z-index:1200;">
-    <label for="playlist-dropdown" style="display:none;">Choose playlist</label>
-    <select id="playlist-dropdown"
-      style="background:rgba(0,0,0,0.7);color:#7be7b8;border:1px solid #7be7b8;border-radius:0.3rem;padding:0.3rem 0.8rem;font-size:0.9rem;outline:none;">
-      <option value="gesture-control" selected>Gesture Control – Interactive Experiences</option>
-      <option value="desktop-experiences">Desktop Experiences</option>
-    </select>
-  </div>
 
   <script>
     // Your Firebase config here
@@ -743,6 +749,26 @@
               }
             }
           });
+        });
+      }
+    });
+
+    // Playlist dropdown functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const playlistDropdown = document.getElementById('playlist-dropdown');
+
+      if (playlistDropdown) {
+        // Handle playlist selection
+        playlistDropdown.addEventListener('change', (e) => {
+          const playlistId = e.target.value;
+          console.log('[PLAYLIST_UI] Switching to playlist:', playlistId);
+
+          // Switch playlists using the main.js function
+          if (window.switchPlaylist && typeof window.switchPlaylist === 'function') {
+            window.switchPlaylist(playlistId);
+          } else {
+            console.error('switchPlaylist function not available');
+          }
         });
       }
     });
