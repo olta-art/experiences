@@ -304,78 +304,6 @@
     // Expose the share function globally
     window.getCurrentArtworkInfo = getCurrentArtworkInfo;
 
-    // Playlist definitions
-    const playlists = {
-      'gesture-control': {
-        name: 'Gesture Control – Interactive Experiences',
-        description: 'Motion-controlled digital artworks that respond to your movements',
-        artworks: ['Shadows Touch Across Time', 'Optical Verlet', 'Dissolvi']
-      },
-      'desktop-experiences': {
-        name: 'Desktop Experiences',
-        description: 'Interactive digital artworks for desktop viewing',
-        artworks: ['FIELDS', 'Morphed Radiance']
-      }
-    };
-
-    // Current playlist state
-    let currentPlaylistId = 'gesture-control'; // Default
-
-    // Function to switch playlists
-    function switchPlaylist(playlistId) {
-      clearInterval(projectInterval); // Always clear interval first
-      const playlist = playlists[playlistId];
-      if (!playlist) return;
-
-      // Use all available projects (API or static)
-      let allProjects = [...window.filteredProjects, ...staticArtworks];
-      console.log('[DEBUG] Filtering for playlist:', playlist.artworks);
-      console.log('playlist.artworks:', playlist.artworks);
-      console.log('All available projects:', allProjects.map(p => p.name));
-      const playlistProjects = playlist.artworks
-        .map(id => allProjects.find(project => project.id === id))
-        .filter(Boolean);
-      projects = playlistProjects;
-      options.projects = projects.map(p => p.id);
-
-      // Set current based on URL param if present
-      const params = new URLSearchParams(window.location.search);
-      const artworkId = params.get('artwork');
-      let idx = 0;
-      if (artworkId) {
-        idx = options.projects.findIndex(id => id.toLowerCase() === artworkId.toLowerCase());
-        if (idx === -1) {
-          idx = projects.findIndex(p => p.name.toLowerCase() === artworkId.toLowerCase());
-          if (idx !== -1) {
-            idx = options.projects.findIndex(id => id === projects[idx].id);
-          } else {
-            idx = 0;
-          }
-        }
-      }
-      current = idx;
-
-      // Only update the URL if it doesn't match
-      if (!artworkId || projects[current].id.toLowerCase() !== artworkId.toLowerCase()) {
-        updateUrlParam(true); // Use replaceState to avoid adding to history
-      }
-
-      if (projects.length > 0) {
-        viewer.setAttribute("url", getUrl());
-        updateDetailsPanel();
-        setCurrentProjectIdGlobal();
-        updateGlobalVariables();
-        updateUrlParam(); // Set URL param after viewer is updated
-        startProjectInterval(); // Start interval AFTER everything is set
-      } else {
-        console.warn('No projects found for playlist:', playlistId);
-      }
-
-      updateUrlParam();
-      updatePlaylistHeader(playlistId); // Update header after switching playlists
-    }
-    window.switchPlaylist = switchPlaylist;
-
     // Twitter handle mapping for all playlists
     const twitterHandles = {
       // Gesture Control Playlist
@@ -403,15 +331,34 @@
 
     // Update the share button event listener
     document.getElementById('share-btn').addEventListener('click', async () => {
-      // Get current artwork info
-      const detailsElement = document.querySelector('o-details');
+      console.log('[SHARE] Share button clicked');
+
+      // Get current artwork ID - use window.currentProjectId as primary source
+      const artworkId = window.currentProjectId || '';
+      console.log('[SHARE] Current artwork ID:', artworkId);
+
+      // Get current artwork info from the global currentProject function
       let projectName = '';
       let artistName = '';
-      if (detailsElement && detailsElement.shadowRoot) {
-        const nameSlot = detailsElement.shadowRoot.querySelector('slot[name="name"]');
-        const creatorSlot = detailsElement.shadowRoot.querySelector('slot[name="creator"]');
-        if (nameSlot) projectName = nameSlot.textContent || '';
-        if (creatorSlot) artistName = creatorSlot.textContent || '';
+
+      if (window.currentProject && typeof window.currentProject === 'function') {
+        const currentProj = window.currentProject();
+        console.log('[SHARE] Current project:', currentProj);
+        if (currentProj) {
+          projectName = currentProj.name || '';
+          artistName = currentProj.creator?.profile?.name || '';
+        }
+      }
+
+      // Fallback: Get from DOM if project function doesn't work
+      if (!projectName) {
+        const detailsElement = document.querySelector('o-details');
+        if (detailsElement && detailsElement.shadowRoot) {
+          const nameSlot = detailsElement.shadowRoot.querySelector('slot[name="name"]');
+          const creatorSlot = detailsElement.shadowRoot.querySelector('slot[name="creator"]');
+          if (nameSlot) projectName = nameSlot.textContent || '';
+          if (creatorSlot) artistName = creatorSlot.textContent || '';
+        }
       }
 
       // Get Twitter handle for this artwork
@@ -435,11 +382,12 @@
         playlistName = playlistDropdown.options[playlistDropdown.selectedIndex].text;
       }
 
-      // Build URLs
+      // Build URLs - ALWAYS use the artwork ID, never the name
       const baseUrl = window.location.origin + window.location.pathname;
-      const artworkId = window.currentProjectId || '';
       const artworkUrl = `${baseUrl}?artwork=${encodeURIComponent(artworkId)}`;
       const playlistUrl = `${baseUrl}?playlist=${encodeURIComponent(playlistId)}`;
+
+      console.log('[SHARE] Built URLs:', { artworkUrl, playlistUrl });
 
       // Build share text
       let tweetText = `Check out "${projectName}"`;
@@ -449,6 +397,8 @@
         tweetText += ` by ${artistName}`;
       }
       tweetText += ` from the ${playlistName} playlist on Olta! ${artworkUrl}\nSee the full playlist: ${playlistUrl}`;
+
+      console.log('[SHARE] Final tweet text:', tweetText);
 
       // Copy to clipboard
       try {

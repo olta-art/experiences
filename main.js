@@ -258,6 +258,28 @@ window.testNavigation = function() {
   }
 };
 
+// Add a test function to verify sharing functionality
+window.testSharing = function() {
+  console.log('=== SHARING TEST ===');
+  console.log('window.currentProjectId:', window.currentProjectId);
+  console.log('currentProject():', currentProject());
+  console.log('Current URL param:', new URLSearchParams(window.location.search).get('artwork'));
+  console.log('Projects array:', projects.map(p => ({ id: p.id, name: p.name })));
+  console.log('Options projects:', options.projects);
+  console.log('Current index:', current);
+  
+  if (currentProject()) {
+    const proj = currentProject();
+    console.log('✅ Current project details:', {
+      id: proj.id,
+      name: proj.name,
+      creator: proj.creator?.profile?.name
+    });
+  } else {
+    console.log('❌ No current project found');
+  }
+};
+
 // Expose other necessary variables and functions globally
 window.current = current;
 window.options = options;
@@ -592,10 +614,14 @@ function alignQrCodeToRight() {
 
 function setCurrentProjectIdGlobal() {
   const proj = currentProject();
+  console.log('[GLOBAL_ID] Setting current project ID globally:', proj);
   if (proj && proj.id) {
     window.currentProjectId = proj.id;
+    console.log('[GLOBAL_ID] window.currentProjectId set to:', window.currentProjectId);
     // Dispatch a custom event so index.html can listen for artwork changes
     window.dispatchEvent(new CustomEvent('artworkChanged', { detail: { id: proj.id } }));
+  } else {
+    console.error('[GLOBAL_ID] Failed to set currentProjectId - no project or no ID');
   }
 }
 
@@ -730,12 +756,16 @@ const desktopPlaylist = [
   console.log('All available project IDs:', allAvailableProjects.map(p => p.id));
   console.log("=== END DEBUG ===");
 
+  // NOW handle initial URL routing after ALL projects (API + static) are loaded
+  console.log('[FINAL_INIT] Handling URL routing after all projects fully loaded');
+  handleInitialUrlRouting();
+
   // Only render options if needed for UI
   renderOptions();
 
   // Do NOT set projects, options.projects, or current here!
   // Do NOT update viewer, details, or URL here!
-  // All playlist setup and initial state will be handled by switchPlaylist in DOMContentLoaded
+  // All playlist setup and initial state will be handled by URL routing above
 })();
 
 function colorTrace(msg, color) {
@@ -884,11 +914,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Set default playlist on load
-  if (window.switchPlaylist) {
-    console.log('[INIT] Calling switchPlaylist("gesture-control") after all projects are loaded');
-    window.switchPlaylist('gesture-control');
-  }
+  // DO NOT call switchPlaylist here - wait for final URL routing
+  console.log('[INIT] Projects loaded, waiting for final URL routing...');
 });
 
 // Define playlists
@@ -910,6 +937,62 @@ const playlists = {
 };
 
 let currentPlaylistId = 'gesture-control'; // Default
+
+// Function to detect which playlist contains a given artwork ID
+function getPlaylistForArtwork(artworkId) {
+  console.log('[PLAYLIST_DETECT] Looking for artwork:', artworkId);
+  console.log('[PLAYLIST_DETECT] Available playlists:', Object.keys(playlists));
+  
+  for (const [playlistId, playlist] of Object.entries(playlists)) {
+    console.log(`[PLAYLIST_DETECT] Checking ${playlistId}:`, playlist.artworks);
+    // Check both exact match and case-insensitive match
+    const found = playlist.artworks.find(id => 
+      id === artworkId || id.toLowerCase() === artworkId.toLowerCase()
+    );
+    if (found) {
+      console.log(`[PLAYLIST_DETECT] Found artwork in playlist: ${playlistId}`);
+      return playlistId;
+    }
+  }
+  console.log('[PLAYLIST_DETECT] Artwork not found in any playlist');
+  return null;
+}
+
+// Function to handle initial URL routing
+function handleInitialUrlRouting() {
+  const params = new URLSearchParams(window.location.search);
+  const artworkId = params.get('artwork');
+  const playlistParam = params.get('playlist');
+  
+  console.log('[INIT_ROUTE] URL params:', { artworkId, playlistParam });
+  console.log('[INIT_ROUTE] Available projects - API:', window.filteredProjects?.length || 0, 'Static:', staticArtworks.length);
+  
+  if (artworkId) {
+    // If there's an artwork ID, find which playlist it belongs to
+    const correctPlaylist = getPlaylistForArtwork(artworkId);
+    console.log('[INIT_ROUTE] Artwork belongs to playlist:', correctPlaylist);
+    
+    if (correctPlaylist) {
+      // Switch to the correct playlist first
+      console.log('[INIT_ROUTE] Switching to playlist:', correctPlaylist);
+      switchPlaylist(correctPlaylist);
+      return;
+    } else {
+      console.log('[INIT_ROUTE] Artwork not found in any playlist, using default');
+    }
+  }
+  
+  if (playlistParam) {
+    // If there's a playlist parameter, use that
+    console.log('[INIT_ROUTE] Switching to playlist from URL:', playlistParam);
+    switchPlaylist(playlistParam);
+    return;
+  }
+  
+  // Default to gesture-control
+  console.log('[INIT_ROUTE] Using default playlist: gesture-control');
+  switchPlaylist('gesture-control');
+}
 
 function switchPlaylist(playlistId) {
   console.log('[SWITCH] Switching to playlist:', playlistId);
@@ -935,6 +1018,11 @@ function switchPlaylist(playlistId) {
   const playlistProjects = playlist.artworks
     .map(id => allProjects.find(project => project.id === id))
     .filter(Boolean);
+
+  // Debug logging for troubleshooting URL issues
+  console.log('[DEBUG] playlistProjects:', playlistProjects.map(p => p.id));
+  console.log('[DEBUG] options.projects:', playlistProjects.map(p => p.id));
+  console.log('[DEBUG] URL param:', new URLSearchParams(window.location.search).get('artwork'));
 
   projects = playlistProjects;
   options.projects = projects.map(p => p.id);
