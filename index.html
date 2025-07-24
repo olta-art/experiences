@@ -258,41 +258,43 @@
     });
 
     // Display count and geographic info
+    let previousCountries = new Set();
     db.ref('viewers').on('value', (snapshot) => {
       const count = snapshot.numChildren();
       const viewerCountElement = document.getElementById('viewer-count');
+      const countries = new Map();
 
-      if (viewerCountElement) {
-        // Collect geographic data
-        const countries = new Map();
-        const viewers = [];
+      snapshot.forEach((childSnapshot) => {
+        const viewer = childSnapshot.val();
+        if (viewer && viewer.country && viewer.country !== 'Unknown') {
+          const currentCount = countries.get(viewer.country) || 0;
+          countries.set(viewer.country, currentCount + 1);
+        }
+      });
 
-        snapshot.forEach((childSnapshot) => {
-          const viewer = childSnapshot.val();
-          viewers.push(childSnapshot.key);
+      // Update viewer count
+      viewerCountElement.textContent = count;
 
-          if (viewer && viewer.country && viewer.country !== 'Unknown') {
-            const currentCount = countries.get(viewer.country) || 0;
-            countries.set(viewer.country, currentCount + 1);
-          }
-        });
+      // Update geographic display
+      updateGeographicDisplay(countries, count);
 
-        // Update viewer count
-        viewerCountElement.textContent = count;
-
-        // Update geographic display
-        updateGeographicDisplay(countries, count);
-
-        console.log('📊 Live viewers updated:', count, 'from', Array.from(countries.keys()));
-      } else {
-        console.error('❌ Viewer count element not found!');
+      // --- New country welcome logic ---
+      const currentCountries = new Set(countries.keys());
+      const newCountries = Array.from(currentCountries).filter(
+        country => !previousCountries.has(country) && country !== 'Unknown'
+      );
+      if (newCountries.length > 0) {
+        showCountryWelcome(newCountries[0]);
       }
+      previousCountries = currentCountries;
+
+      console.log('📊 Live viewers updated:', count, 'from', Array.from(countries.keys()));
     }, (error) => {
       console.error('❌ Error reading viewer count:', error);
     });
 
     // Track previous countries for welcome notifications
-    let previousCountries = new Set();
+    // let previousCountries = new Set(); // This line is now redundant as it's declared globally
 
     // Function to update geographic display
     function updateGeographicDisplay(countries, totalCount) {
@@ -327,14 +329,17 @@
         geoElement.style.display = 'inline';
 
         // Check for new countries and show welcome notification
-        const currentCountries = new Set(topCountries);
-        const newCountries = Array.from(currentCountries).filter(country => !previousCountries.has(country));
+        // const currentCountries = new Set(topCountries); // This line is now redundant
+        // const newCountries = Array.from(currentCountries).filter(
+        //   country => !previousCountries.has(country) && country !== 'Unknown'
+        // );
 
-        if (newCountries.length > 0) {
-          showWelcomeNotification(newCountries[0]);
-        }
+        // if (newCountries.length > 0) {
+        //   // Show welcome for the first new country (or loop for all if you want)
+        //   showCountryWelcome(newCountries[0]);
+        // }
 
-        previousCountries = currentCountries;
+        // previousCountries = currentCountries; // This line is now redundant
       } else {
         geoElement.style.display = 'none';
       }
