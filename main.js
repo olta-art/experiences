@@ -642,9 +642,14 @@ const gestureArtworkNames = [
 // Filter out gesture artworks from staticArtworks on mobile
 let filteredStaticArtworks = staticArtworks;
 if (isMobile) {
+  console.log('[MOBILE_FILTER] Original static artworks:', staticArtworks.map(art => art.name));
+  console.log('[MOBILE_FILTER] Artworks to exclude:', gestureArtworkNames);
+  
   filteredStaticArtworks = staticArtworks.filter(
     (art) => !gestureArtworkNames.includes(art.name)
   );
+  
+  console.log('[MOBILE_FILTER] Filtered static artworks:', filteredStaticArtworks.map(art => art.name));
   options.display.qr = false;
 }
 
@@ -664,8 +669,8 @@ async function requestCameraOnce() {
 
 // Define the playlists at the top of main.js
 const gestureControlPlaylist = [
-  "Shadows-Touch-Accross-Time",
-  "Optical-Verlet",
+  "Shadows-Touch-Across-Time",
+  "Optical-Verlet", 
   "Dissolvi"
 ];
 
