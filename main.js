@@ -1002,6 +1002,7 @@ function switchPlaylist(playlistId) {
     return;
   }
   currentPlaylistId = playlistId;
+  window.currentPlaylistId = currentPlaylistId;
   
   // Get all available projects (from API and static)
   let allProjects;
@@ -1069,7 +1070,14 @@ function switchPlaylist(playlistId) {
     if (desc) desc.textContent = playlist.description;
   }
 
+  // Update playlist dropdown to match current playlist
+  const playlistDropdown = document.getElementById('playlist-dropdown');
+  if (playlistDropdown && playlistDropdown.value !== playlistId) {
+    playlistDropdown.value = playlistId;
+  }
+
   console.log(`Switched to ${playlist.name} with ${projects.length} artworks`);
 }
 window.switchPlaylist = switchPlaylist;
+window.currentPlaylistId = currentPlaylistId;
 
