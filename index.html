@@ -185,9 +185,40 @@
       }
     }
 
-    // On page load - add this viewer with location (non-blocking)
+    function showCountryWelcome(country) {
+      // Remove any existing welcome
+      const old = document.getElementById('country-welcome');
+      if (old) old.remove();
+
+      const welcome = document.createElement('div');
+      welcome.id = 'country-welcome';
+      welcome.textContent = `🌍 Welcome from ${country}! You’re joining the shared experience.`;
+      welcome.style.cssText = `
+        position: fixed;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #7be7b8;
+        color: #111;
+        padding: 1rem 2rem;
+        border-radius: 1.2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        z-index: 9999;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+        opacity: 0;
+        transition: opacity 0.4s;
+      `;
+      document.body.appendChild(welcome);
+
+      setTimeout(() => { welcome.style.opacity = '1'; }, 100);
+      setTimeout(() => {
+        welcome.style.opacity = '0';
+        setTimeout(() => { welcome.remove(); }, 600);
+      }, 3500);
+    }
+
     function addViewerWithLocation() {
-      // Add viewer immediately with basic info
       const viewerRef = db.ref('viewers/' + viewerId);
       viewerRef.set({
         timestamp: Date.now(),
@@ -197,9 +228,6 @@
         city: 'Unknown City',
         region: 'Unknown Region'
       }).then(() => {
-        console.log('✅ Viewer added to database:', viewerId);
-
-        // Then try to get location in background (non-blocking)
         getViewerCountry().then(location => {
           const updateRef = db.ref('viewers/' + viewerId);
           updateRef.update({
@@ -215,8 +243,6 @@
           }).catch(error => {
             console.log('⚠️ Could not update location for viewer:', error);
           });
-        }).catch(error => {
-          console.log('⚠️ Could not get location for viewer:', error);
         });
       }).catch((error) => {
         console.error('❌ Error adding viewer:', error);
