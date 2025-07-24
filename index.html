@@ -209,6 +209,9 @@
             region: location.region
           }).then(() => {
             console.log('✅ Location updated for viewer:', viewerId, 'from', location.country);
+            if (location.country && location.country !== 'Unknown') {
+              showCountryWelcome(location.country);
+            }
           }).catch(error => {
             console.log('⚠️ Could not update location for viewer:', error);
           });
@@ -1354,6 +1357,39 @@
       alert('Playlist link copied!');
       // Optionally open Twitter, etc.
     });
+
+    function showCountryWelcome(country) {
+      // Remove any existing welcome
+      const old = document.getElementById('country-welcome');
+      if (old) old.remove();
+
+      const welcome = document.createElement('div');
+      welcome.id = 'country-welcome';
+      welcome.textContent = `🌍 Welcome from ${country}! You’re joining the shared experience.`;
+      welcome.style.cssText = `
+        position: fixed;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #7be7b8;
+        color: #111;
+        padding: 1rem 2rem;
+        border-radius: 1.2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        z-index: 9999;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+        opacity: 0;
+        transition: opacity 0.4s;
+      `;
+      document.body.appendChild(welcome);
+
+      setTimeout(() => { welcome.style.opacity = '1'; }, 100);
+      setTimeout(() => {
+        welcome.style.opacity = '0';
+        setTimeout(() => { welcome.remove(); }, 600);
+      }, 3500);
+    }
   </script>
 </body>
 
