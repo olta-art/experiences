@@ -12,8 +12,6 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="./main.js" type="module"></script>
 
-
-
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-7RGXWP7PJJ"></script>
   <script>
@@ -70,8 +68,6 @@
         </svg>
       </span>
       Live viewers: <span id="viewer-count">0</span>
-      <div id="global-locations" class="global-locations"
-        style="display: none; font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-top: 0.2rem;"></div>
     </span>
     <span class="status-divider"></span>
     <button id="heart-btn" aria-label="Show appreciation">
@@ -185,84 +181,26 @@
       console.log('✅ Disconnect handler set for viewer:', viewerId);
     });
 
-    // Display count and global locations
+    // Display count
     db.ref('viewers').on('value', (snapshot) => {
       const count = snapshot.numChildren();
       const viewerCountElement = document.getElementById('viewer-count');
-
       if (viewerCountElement) {
         viewerCountElement.textContent = count;
-
-        // Collect viewer locations
-        const countries = new Set();
-        const viewers = [];
-
-        snapshot.forEach((childSnapshot) => {
-          const viewer = childSnapshot.val();
-          viewers.push(childSnapshot.key);
-
-          // Extract country from user agent or IP (simplified)
-          if (viewer && viewer.userAgent) {
-            // Simple country detection (you could use a proper geolocation service)
-            const country = detectCountryFromUserAgent(viewer.userAgent);
-            if (country) countries.add(country);
-          }
-        });
-
-        // Update global locations display
-        updateGlobalLocationsDisplay(countries);
-
         console.log('📊 Live viewers updated:', count);
-        console.log('🌍 Countries:', Array.from(countries));
+
+        // Show all current viewers for debugging
+        const viewers = [];
+        snapshot.forEach((childSnapshot) => {
+          viewers.push(childSnapshot.key);
+        });
+        console.log('👥 Current viewers:', viewers);
       } else {
         console.error('❌ Viewer count element not found!');
       }
     }, (error) => {
       console.error('❌ Error reading viewer count:', error);
     });
-
-    // Simple country detection from user agent
-    function detectCountryFromUserAgent(userAgent) {
-      // This is a simplified version - you'd want to use a proper geolocation service
-      const countryMap = {
-        'en-US': '🇺🇸 USA',
-        'en-GB': '🇬🇧 UK',
-        'en-CA': '🇨🇦 Canada',
-        'ja': '🇯🇵 Japan',
-        'ko': '🇰🇷 Korea',
-        'zh': '🇨🇳 China',
-        'de': '🇩🇪 Germany',
-        'fr': '🇫🇷 France',
-        'es': '🇪🇸 Spain',
-        'it': '🇮🇹 Italy',
-        'pt': '🇧🇷 Brazil',
-        'ru': '🇷🇺 Russia',
-        'ar': '🇸🇦 Saudi Arabia',
-        'hi': '🇮🇳 India',
-        'tr': '🇹🇷 Turkey'
-      };
-
-      // Extract language from user agent
-      const lang = navigator.language || 'en-US';
-      return countryMap[lang] || '🌍 Global';
-    }
-
-    // Update global locations display
-    function updateGlobalLocationsDisplay(countries) {
-      const locationsElement = document.getElementById('global-locations');
-      if (!locationsElement) return;
-
-      const countryArray = Array.from(countries);
-
-      if (countryArray.length > 0) {
-        const displayText = countryArray.slice(0, 3).join(', ');
-        const moreText = countryArray.length > 3 ? ` +${countryArray.length - 3} more` : '';
-        locationsElement.textContent = `from ${displayText}${moreText}`;
-        locationsElement.style.display = 'block';
-      } else {
-        locationsElement.style.display = 'none';
-      }
-    }
 
     // Clean up old viewers (older than 5 minutes)
     setInterval(() => {
