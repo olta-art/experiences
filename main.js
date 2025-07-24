@@ -15,6 +15,7 @@ const staticArtworks = [
     },
     qrCodeUrl: "https://epok.tech"
   },
+  // Note: to add url about Artwork on Olta and direct people there with QR code
 
   {
     id: "Optical-Verlet",
@@ -26,7 +27,7 @@ const staticArtworks = [
     lastAddedVersion: {
       animation: { url: "https://a7frsrbb25jdkt6rkwxhj6y44eh3rzyiffo6ait3kypjm7fqh5lq.arweave.net/B8sZRCHXUjVP0VWudPsc4Q-45wgpXeAie1YelnywP1c/" }
     },
-    qrCodeUrl: "https://xvi-jojo.com"
+    qrCodeUrl: "https://x.com/xvijojo"
   },
 
   {
@@ -41,6 +42,7 @@ const staticArtworks = [
     },
     qrCodeUrl: "https://x.com/seigneurrrr?lang=en"
   },
+   // Note: to add url about Artwork on Olta and direct people there with QR code
 
   {
     id: "Faded-Memories",
@@ -708,10 +710,10 @@ const desktopPlaylist = [
     // Map project names to artist websites and social media
     const artistWebsites = {
       "Totems": "https://arweave.net/_mg8ZW1miexH22bD-LdiABnGH8n5X5smYYXbbDKocpA/?id=1&address=0xac771ff04287872ea43263703b43ad5b801e8a1e&seed=1",
-      "Peer into the Flow": "https://twitter.com/peerintotheflow",
-      "Sacred Moth": "https://twitter.com/sacredmoth_art",
-      "FIELDS": "https://twitter.com/fields_art",
-      "Morphed Radiance": "https://twitter.com/morphed_radiance",
+      "Peer into the Flow": "https://olta.art/artwork/peerintotheflow",
+      "Sacred Moth": "",
+      "FIELDS": "https://olta.art/artwork/fields",
+      "Morphed Radiance": "https://nft.olta.art/project/0xe94100850ee7507dd57eb1ba67dc0600b18122df",
       "Your New Project": "https://artist-website.com",
       // For projects without specific artist websites, link to their artwork directly
       // or to a general portfolio/collection page

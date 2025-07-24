@@ -963,6 +963,8 @@
           // Switch playlists using the main.js function
           if (window.switchPlaylist && typeof window.switchPlaylist === 'function') {
             window.switchPlaylist(playlistId);
+            // Show the playlist header again and start hide timer
+            showPlaylistHeaderWithTimer();
           } else {
             console.error('switchPlaylist function not available');
           }
@@ -1094,6 +1096,50 @@
         }
       }, 10000); // 10 seconds for quick testing
     }
+
+    // Variable to store the hide timer
+    let playlistHideTimer = null;
+
+    // Hide playlist description panel after 10 seconds
+    function hidePlaylistDescriptionAfterDelay() {
+      // Clear any existing timer
+      if (playlistHideTimer) {
+        clearTimeout(playlistHideTimer);
+      }
+
+      playlistHideTimer = setTimeout(() => {
+        const playlistHeader = document.getElementById('playlist-header');
+        if (playlistHeader) {
+          playlistHeader.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          playlistHeader.style.opacity = '0';
+          playlistHeader.style.transform = 'translateY(-10px)';
+
+          // Completely hide after fade animation
+          setTimeout(() => {
+            playlistHeader.style.display = 'none';
+          }, 500);
+        }
+      }, 10000); // 10 seconds
+    }
+
+    // Function to show playlist header and start hide timer
+    function showPlaylistHeaderWithTimer() {
+      const playlistHeader = document.getElementById('playlist-header');
+      if (playlistHeader) {
+        // Show the header
+        playlistHeader.style.display = 'block';
+        playlistHeader.style.opacity = '1';
+        playlistHeader.style.transform = 'translateY(0)';
+
+        // Start the hide timer
+        hidePlaylistDescriptionAfterDelay();
+      }
+    }
+
+    // Start the hide timer when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      hidePlaylistDescriptionAfterDelay();
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
       const shareArtworkBtn = document.getElementById('share-artwork-btn');
