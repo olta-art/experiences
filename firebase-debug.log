@@ -1,0 +1,31 @@
+[debug] [2025-07-24T23:31:59.341Z] ----------------------------------------------------------------------
+[debug] [2025-07-24T23:31:59.343Z] Command:       /Users/terencereilly/.nvm/versions/node/v22.12.0/bin/node /Users/terencereilly/.nvm/versions/node/v22.12.0/bin/firebase init hosting
+[debug] [2025-07-24T23:31:59.343Z] CLI Version:   14.11.1
+[debug] [2025-07-24T23:31:59.343Z] Platform:      darwin
+[debug] [2025-07-24T23:31:59.344Z] Node Version:  v22.12.0
+[debug] [2025-07-24T23:31:59.344Z] Time:          Fri Jul 25 2025 00:31:59 GMT+0100 (British Summer Time)
+[debug] [2025-07-24T23:31:59.344Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-07-24T23:31:59.345Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-07-24T23:31:59.371Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-07-24T23:31:59.371Z] > authorizing via signed-in user (terence@olta.art)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /Users/terencereilly/Documents/Playlist
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-07-24T23:31:59.625Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-07-24T23:31:59.626Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
