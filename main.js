@@ -631,9 +631,11 @@ function setCurrentProjectIdGlobal() {
 const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 // List of gesture/spatial controlled artwork names to exclude on mobile
+// Note: Dissolvi is kept for mobile, others are excluded
 const gestureArtworkNames = [
-  "Optical Verlet",
-  "Dissolvi"
+  "Shadows Touch Across Time",
+  "Optical Verlet"
+  // Dissolvi is intentionally removed from this list to keep it on mobile
   // Add more gesture artwork names here as needed
 ];
 
@@ -737,8 +739,8 @@ const desktopPlaylist = [
     return filteredProjects.find(p => p.id === id);
   }
 
-  // Combine API projects with static artworks
-  const allAvailableProjects = [...filteredProjects, ...staticArtworks];
+  // Combine API projects with static artworks (use filtered version for mobile)
+  const allAvailableProjects = [...filteredProjects, ...filteredStaticArtworks];
   
   // (You can keep orderedProjects if you want for debugging, but don't assign to global state)
   const orderedProjects = [
@@ -752,7 +754,9 @@ const desktopPlaylist = [
   // Optionally: log for debugging
   console.log("=== PROJECT LOADING DEBUG ===");
   console.log("Filtered projects from API:", filteredProjects.map(p => p.name));
-  console.log("Static artworks:", staticArtworks.map(p => p.name));
+  console.log("Static artworks (original):", staticArtworks.map(p => p.name));
+  console.log("Static artworks (filtered for mobile):", filteredStaticArtworks.map(p => p.name));
+  console.log("Is mobile device:", isMobile);
   console.log("Combined all projects:", allAvailableProjects.map(p => p.name));
   console.log("Ordered projects (for debug):", orderedProjects.map(p => p.name));
   console.log('All available project IDs:', allAvailableProjects.map(p => p.id));
@@ -1009,12 +1013,12 @@ function switchPlaylist(playlistId) {
   // Get all available projects (from API and static)
   let allProjects;
   if (window.filteredProjects && window.filteredProjects.length > 0) {
-    // Combine API projects with static artworks
-    allProjects = [...window.filteredProjects, ...staticArtworks];
+    // Combine API projects with static artworks (use filtered version for mobile)
+    allProjects = [...window.filteredProjects, ...filteredStaticArtworks];
   } else if (projects.length > 0) {
     allProjects = projects;
   } else {
-    allProjects = staticArtworks;
+    allProjects = filteredStaticArtworks;
   }
   
   // Build playlist by ID (not name)
