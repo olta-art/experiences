@@ -272,23 +272,25 @@
         }
       });
 
-      // Update viewer count
-      viewerCountElement.textContent = count;
-
-      // Update geographic display
-      updateGeographicDisplay(countries, count);
-
       // --- New country welcome logic ---
       const currentCountries = new Set(countries.keys());
       const newCountries = Array.from(currentCountries).filter(
         country => !previousCountries.has(country) && country !== 'Unknown'
       );
       if (newCountries.length > 0) {
-        showCountryWelcome(newCountries[0]);
+        newCountries.forEach(showCountryWelcome);
       }
       previousCountries = currentCountries;
 
-      console.log('📊 Live viewers updated:', count, 'from', Array.from(countries.keys()));
+      // Update viewer count
+      if (viewerCountElement) {
+        viewerCountElement.textContent = count;
+        // Update geographic display
+        updateGeographicDisplay(countries, count);
+        console.log('📊 Live viewers updated:', count, 'from', Array.from(countries.keys()));
+      } else {
+        console.error('❌ Viewer count element not found!');
+      }
     }, (error) => {
       console.error('❌ Error reading viewer count:', error);
     });
