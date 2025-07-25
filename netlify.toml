@@ -2,9 +2,10 @@
   publish = "."
   command = ""
 
+# Handle client-side routing for subdirectory
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/experiences/*"
+  to = "/experiences/index.html"
   status = 200
 
 [build.environment]
