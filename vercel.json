@@ -6,15 +6,23 @@
             "use": "@vercel/static"
         }
     ],
-    "routes": [
+    "rewrites": [
         {
-            "src": "/experiences/(.*)",
-            "dest": "/experiences/index.html"
+            "source": "/experiences",
+            "destination": "/index.html"
+        },
+        {
+            "source": "/experiences/",
+            "destination": "/index.html"
+        },
+        {
+            "source": "/experiences/(.*)",
+            "destination": "/index.html"
         }
     ],
     "headers": [
         {
-            "source": "**/*",
+            "source": "/(.*)",
             "headers": [
                 {
                     "key": "X-Frame-Options",
