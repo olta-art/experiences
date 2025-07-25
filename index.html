@@ -148,6 +148,11 @@
 
 
   <script>
+    // Only redirect /experiences requests to Vercel
+    if (window.location.pathname.startsWith('/experiences')) {
+      window.location.href = 'https://experiences-jye7i19fk-olta.vercel.app' + window.location.pathname + window.location.search;
+    }
+
     // Your Firebase config here
     const firebaseConfig = {
       apiKey: "AIzaSyDDEb8UeIk6D0pxl_IWEMADqhLz4ZEsA2g",
