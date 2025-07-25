@@ -20,18 +20,6 @@
             "destination": "/index.html"
         }
     ],
-    "redirects": [
-        {
-            "source": "/",
-            "destination": "https://olta.art",
-            "permanent": false
-        },
-        {
-            "source": "/((?!experiences).*)",
-            "destination": "https://olta.art",
-            "permanent": false
-        }
-    ],
     "headers": [
         {
             "source": "/(.*)",
