@@ -8,15 +8,7 @@
     ],
     "rewrites": [
         {
-            "source": "/experiences",
-            "destination": "/index.html"
-        },
-        {
-            "source": "/experiences/",
-            "destination": "/index.html"
-        },
-        {
-            "source": "/experiences/(.*)",
+            "source": "/(.*)",
             "destination": "/index.html"
         }
     ],
