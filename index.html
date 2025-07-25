@@ -148,9 +148,9 @@
 
 
   <script>
-    // Only redirect /experiences requests to Vercel
+    // Only show Vercel app for /experiences, redirect everything else
     if (window.location.pathname.startsWith('/experiences')) {
-      window.location.href = 'https://experiences-jye7i19fk-olta.vercel.app' + window.location.pathname + window.location.search;
+      window.location.href = 'https://experiences.olta.art' + window.location.pathname.replace('/experiences', '') + window.location.search;
     }
 
     // Your Firebase config here
