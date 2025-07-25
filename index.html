@@ -56,10 +56,6 @@
   <div id="playlist-header" class="playlist-header">
     <div class="playlist-title">Gesture Control – Interactive Experiences</div>
     <div class="playlist-description">Motion-controlled digital artworks that respond to your movements</div>
-    <div id="global-connection" class="global-connection">
-      <span class="connection-icon">🌍</span>
-      <span class="connection-text">Connecting viewers worldwide</span>
-    </div>
   </div>
 
   <!-- Top Right Status Bar (existing) -->
@@ -169,221 +165,42 @@
     const viewerId = 'viewer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     console.log('New viewer ID:', viewerId);
 
-    // This will work online but not locally
-    async function getViewerCountry() {
-      try {
-        const response = await fetch('https://ipinfo.io/json?token=YOUR_TOKEN');
-        const data = await response.json();
-        return {
-          country: data.country || 'Unknown',
-          countryCode: data.country || 'XX',
-          city: data.city || 'Unknown City',
-          region: data.region || 'Unknown Region'
-        };
-      } catch (error) {
-        return { country: 'Unknown' };
-      }
-    }
-
-    function showCountryWelcome(country) {
-      // Remove any existing welcome
-      const old = document.getElementById('country-welcome');
-      if (old) old.remove();
-
-      const welcome = document.createElement('div');
-      welcome.id = 'country-welcome';
-      welcome.textContent = `🌍 Welcome from ${country}! You’re joining the shared experience.`;
-      welcome.style.cssText = `
-        position: fixed;
-        top: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #7be7b8;
-        color: #111;
-        padding: 1rem 2rem;
-        border-radius: 1.2rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        z-index: 9999;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-        opacity: 0;
-        transition: opacity 0.4s;
-      `;
-      document.body.appendChild(welcome);
-
-      setTimeout(() => { welcome.style.opacity = '1'; }, 100);
-      setTimeout(() => {
-        welcome.style.opacity = '0';
-        setTimeout(() => { welcome.remove(); }, 600);
-      }, 3500);
-    }
-
-    function addViewerWithLocation() {
-      const viewerRef = db.ref('viewers/' + viewerId);
-      viewerRef.set({
-        timestamp: Date.now(),
-        userAgent: navigator.userAgent,
-        country: 'Unknown',
-        countryCode: 'XX',
-        city: 'Unknown City',
-        region: 'Unknown Region'
-      }).then(() => {
-        getViewerCountry().then(location => {
-          const updateRef = db.ref('viewers/' + viewerId);
-          updateRef.update({
-            country: location.country,
-            countryCode: location.countryCode,
-            city: location.city,
-            region: location.region
-          }).then(() => {
-            console.log('✅ Location updated for viewer:', viewerId, 'from', location.country);
-            if (location.country && location.country !== 'Unknown') {
-              showCountryWelcome(location.country);
-            }
-          }).catch(error => {
-            console.log('⚠️ Could not update location for viewer:', error);
-          });
-        });
-      }).catch((error) => {
-        console.error('❌ Error adding viewer:', error);
-      });
-    }
-
-    addViewerWithLocation();
+    // On page load - add this viewer
+    const viewerRef = db.ref('viewers/' + viewerId);
+    viewerRef.set({
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent
+    }).then(() => {
+      console.log('✅ Viewer added to database:', viewerId);
+    }).catch((error) => {
+      console.error('❌ Error adding viewer:', error);
+    });
 
     // Remove this viewer when they leave
-    const disconnectRef = db.ref('viewers/' + viewerId);
-    disconnectRef.onDisconnect().remove().then(() => {
+    viewerRef.onDisconnect().remove().then(() => {
       console.log('✅ Disconnect handler set for viewer:', viewerId);
     });
 
-    // Display count and geographic info
-    let previousCountries = new Set();
+    // Display count
     db.ref('viewers').on('value', (snapshot) => {
       const count = snapshot.numChildren();
       const viewerCountElement = document.getElementById('viewer-count');
-      const countries = new Map();
-
-      snapshot.forEach((childSnapshot) => {
-        const viewer = childSnapshot.val();
-        if (viewer && viewer.country && viewer.country !== 'Unknown') {
-          const currentCount = countries.get(viewer.country) || 0;
-          countries.set(viewer.country, currentCount + 1);
-        }
-      });
-
-      // --- New country welcome logic ---
-      const currentCountries = new Set(countries.keys());
-      const newCountries = Array.from(currentCountries).filter(
-        country => !previousCountries.has(country) && country !== 'Unknown'
-      );
-      if (newCountries.length > 0) {
-        newCountries.forEach(showCountryWelcome);
-      }
-      previousCountries = currentCountries;
-
-      // Update viewer count
       if (viewerCountElement) {
         viewerCountElement.textContent = count;
-        // Update geographic display
-        updateGeographicDisplay(countries, count);
-        console.log('📊 Live viewers updated:', count, 'from', Array.from(countries.keys()));
+        console.log('📊 Live viewers updated:', count);
+
+        // Show all current viewers for debugging
+        const viewers = [];
+        snapshot.forEach((childSnapshot) => {
+          viewers.push(childSnapshot.key);
+        });
+        console.log('👥 Current viewers:', viewers);
       } else {
         console.error('❌ Viewer count element not found!');
       }
     }, (error) => {
       console.error('❌ Error reading viewer count:', error);
     });
-
-    // Track previous countries for welcome notifications
-    // let previousCountries = new Set(); // This line is now redundant as it's declared globally
-
-    // Function to update geographic display
-    function updateGeographicDisplay(countries, totalCount) {
-      // Get or create geographic display element
-      let geoElement = document.getElementById('viewer-geographic');
-      if (!geoElement) {
-        geoElement = document.createElement('span');
-        geoElement.id = 'viewer-geographic';
-        geoElement.style.cssText = `
-          font-size: 0.8rem;
-          color: rgba(255, 255, 255, 0.7);
-          margin-left: 0.5rem;
-          font-weight: 400;
-        `;
-
-        // Insert after viewer count
-        const viewerCounter = document.getElementById('viewer-counter');
-        if (viewerCounter) {
-          viewerCounter.appendChild(geoElement);
-        }
-      }
-
-      // Create geographic text
-      if (countries.size > 0) {
-        const topCountries = Array.from(countries.entries())
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 3)
-          .map(([country, count]) => country);
-
-        const countryText = topCountries.join(', ');
-        geoElement.textContent = `from ${countryText}`;
-        geoElement.style.display = 'inline';
-
-        // Check for new countries and show welcome notification
-        // const currentCountries = new Set(topCountries); // This line is now redundant
-        // const newCountries = Array.from(currentCountries).filter(
-        //   country => !previousCountries.has(country) && country !== 'Unknown'
-        // );
-
-        // if (newCountries.length > 0) {
-        //   // Show welcome for the first new country (or loop for all if you want)
-        //   showCountryWelcome(newCountries[0]);
-        // }
-
-        // previousCountries = currentCountries; // This line is now redundant
-      } else {
-        geoElement.style.display = 'none';
-      }
-    }
-
-    // Function to show welcome notification
-    function showWelcomeNotification(country) {
-      // Create notification element
-      const notification = document.createElement('div');
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(123, 231, 184, 0.9);
-        color: #000;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 500;
-        z-index: 10000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        font-size: 0.9rem;
-      `;
-
-      notification.textContent = `🌍 Welcome ${country}!`;
-      document.body.appendChild(notification);
-
-      // Animate in
-      setTimeout(() => {
-        notification.style.opacity = '1';
-      }, 100);
-
-      // Remove after 3 seconds
-      setTimeout(() => {
-        notification.style.opacity = '0';
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 300);
-      }, 3000);
-    }
 
     // Clean up old viewers (older than 5 minutes)
     setInterval(() => {
@@ -1390,39 +1207,6 @@
       alert('Playlist link copied!');
       // Optionally open Twitter, etc.
     });
-
-    function showCountryWelcome(country) {
-      // Remove any existing welcome
-      const old = document.getElementById('country-welcome');
-      if (old) old.remove();
-
-      const welcome = document.createElement('div');
-      welcome.id = 'country-welcome';
-      welcome.textContent = `🌍 Welcome from ${country}! You’re joining the shared experience.`;
-      welcome.style.cssText = `
-        position: fixed;
-        top: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #7be7b8;
-        color: #111;
-        padding: 1rem 2rem;
-        border-radius: 1.2rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        z-index: 9999;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-        opacity: 0;
-        transition: opacity 0.4s;
-      `;
-      document.body.appendChild(welcome);
-
-      setTimeout(() => { welcome.style.opacity = '1'; }, 100);
-      setTimeout(() => {
-        welcome.style.opacity = '0';
-        setTimeout(() => { welcome.remove(); }, 600);
-      }, 3500);
-    }
   </script>
 </body>
 

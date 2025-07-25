@@ -111,17 +111,12 @@ export function decode(s = "") {
     .replaceAll(`\\\\`, `\\`)
 }
 
-// Mobile detection utility
-export function isMobileDevice() {
-  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+// Example: filter out gesture artworks on mobile
+if (isMobile) {
+  filteredStaticArtworks = filteredStaticArtworks.filter(
+    art => !art.isGesture // or use a name/ID check
+  );
+  filteredProjects = filteredProjects.filter(
+    project => !project.isGesture // or use a name/ID check
+  );
 }
-
-// Example: filter out gesture artworks on mobile (commented out as variables not defined)
-// if (isMobileDevice()) {
-//   filteredStaticArtworks = filteredStaticArtworks.filter(
-//     art => !art.isGesture // or use a name/ID check
-//   );
-//   filteredProjects = filteredProjects.filter(
-//     project => !project.isGesture // or use a name/ID check
-//   );
-// }
