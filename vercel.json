@@ -12,6 +12,9 @@
             "destination": "/index.html"
         }
     ],
+    "domains": [
+        "experiences.olta.art"
+    ],
     "headers": [
         {
             "source": "/(.*)",
