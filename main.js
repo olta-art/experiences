@@ -639,6 +639,81 @@ const gestureArtworkNames = [
   // Add more gesture artwork names here as needed
 ];
 
+// Desktop-only artworks that require full desktop experience
+const desktopOnlyArtworkNames = [
+  "Faded Memories",
+  "FIELDS",
+  "Meanwhile", 
+  "Morphed Radiance"
+];
+
+// Function to check if current artwork requires desktop
+function isDesktopOnlyArtwork(projectName) {
+  return desktopOnlyArtworkNames.includes(projectName);
+}
+
+// Track if desktop modal has been shown this session
+let desktopModalShownThisSession = false;
+
+// Function to show desktop experience modal
+function showDesktopExperienceModal(artworkName) {
+  const modal = document.getElementById('desktop-experience-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    desktopModalShownThisSession = true;
+    
+    // Update modal content with artwork name if needed
+    const header = modal.querySelector('.desktop-modal-header h2');
+    if (header && artworkName) {
+      if (artworkName === 'Desktop Experiences') {
+        header.textContent = '🖥️ Desktop Experiences requires Desktop';
+      } else {
+        header.textContent = `🖥️ "${artworkName}" requires Desktop`;
+      }
+    }
+    
+    // Handle close button
+    const closeBtn = document.getElementById('desktop-modal-close');
+    const shareBtn = document.getElementById('desktop-modal-share');
+    
+    closeBtn.onclick = () => {
+      modal.style.display = 'none';
+      // Navigate back to gesture control playlist
+      switchPlaylist('gesture-control');
+    };
+    
+    shareBtn.onclick = () => {
+      // Share current URL for desktop viewing
+      if (navigator.share) {
+        navigator.share({
+          title: `${artworkName} - Interactive Art Experience`,
+          text: `Check out this interactive artwork: ${artworkName}`,
+          url: window.location.href
+        }).catch(err => console.log('Error sharing:', err));
+      } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          shareBtn.textContent = 'Copied!';
+          setTimeout(() => {
+            shareBtn.textContent = 'Share to Desktop';
+          }, 2000);
+        }).catch(err => {
+          console.log('Error copying to clipboard:', err);
+          // Fallback: show URL in alert
+          alert(`Share this URL on desktop: ${window.location.href}`);
+        });
+      }
+    };
+    
+    // Close modal when clicking overlay
+    modal.onclick = (e) => {
+      if (e.target === modal) {
+        closeBtn.click();
+      }
+    };
+  }
+}
+
 // Filter out gesture artworks from staticArtworks on mobile
 let filteredStaticArtworks = staticArtworks;
 if (isMobile) {
@@ -651,6 +726,15 @@ if (isMobile) {
   
   console.log('[MOBILE_FILTER] Filtered static artworks:', filteredStaticArtworks.map(art => art.name));
   options.display.qr = false;
+  
+  // Hide desktop experiences option in dropdown for mobile users
+  document.addEventListener('DOMContentLoaded', () => {
+    const desktopOption = document.getElementById('desktop-experiences-option');
+    if (desktopOption) {
+      desktopOption.style.display = 'none';
+      console.log('[MOBILE_FILTER] Hidden desktop experiences option for mobile user');
+    }
+  });
 }
 
 // Only request camera access once on mobile
@@ -855,6 +939,16 @@ function updateDetailsPanel() {
   const detailsObj = getDetails();
   if (!detailsObj) return;
   const { name, description, creator } = detailsObj;
+  
+  // Check if this is a desktop-only artwork and user is on mobile
+  if (isMobile && isDesktopOnlyArtwork(name)) {
+    console.log(`[DESKTOP_CHECK] Mobile user accessing desktop-only artwork: ${name}`);
+    // Show the desktop experience modal
+    setTimeout(() => {
+      showDesktopExperienceModal(name);
+    }, 1000); // Small delay to let the artwork load first
+  }
+  
   details.setAttribute("name", name || "");
   details.setAttribute("description", description || "");
   details.setAttribute("creator", creator || "");
@@ -983,6 +1077,19 @@ function handleInitialUrlRouting() {
     const correctPlaylist = getPlaylistForArtwork(artworkId);
     console.log('[INIT_ROUTE] Artwork belongs to playlist:', correctPlaylist);
     
+    // Check if mobile user is trying to access a desktop-only artwork directly
+    if (isMobile && correctPlaylist === 'desktop-experiences') {
+      console.log('[DESKTOP_CHECK] Mobile user trying to access desktop-only artwork directly:', artworkId);
+      // Find the artwork name for the modal
+      const artworkName = [...window.filteredProjects || [], ...staticArtworks]
+        .find(p => p.id === artworkId)?.name || 'Desktop Artwork';
+      showDesktopExperienceModal(artworkName);
+      // Redirect to gesture control instead
+      window.history.replaceState({}, '', window.location.pathname + '?playlist=gesture-control');
+      switchPlaylist('gesture-control');
+      return;
+    }
+    
     if (correctPlaylist) {
       // Switch to the correct playlist first
       console.log('[INIT_ROUTE] Switching to playlist:', correctPlaylist);
@@ -1007,6 +1114,14 @@ function handleInitialUrlRouting() {
 
 function switchPlaylist(playlistId) {
   console.log('[SWITCH] Switching to playlist:', playlistId);
+  
+  // Check if mobile user is trying to access desktop experiences
+  if (isMobile && playlistId === 'desktop-experiences') {
+    console.log('[DESKTOP_CHECK] Mobile user trying to access desktop experiences playlist');
+    showDesktopExperienceModal('Desktop Experiences');
+    return; // Prevent switching to desktop experiences on mobile
+  }
+  
   const playlist = playlists[playlistId];
   if (!playlist) {
     console.error('Playlist not found:', playlistId);

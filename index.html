@@ -50,7 +50,7 @@
     </span>
     <select id="playlist-dropdown">
       <option value="gesture-control" selected>Gesture Control</option>
-      <option value="desktop-experiences">Desktop Experiences</option>
+      <option value="desktop-experiences" id="desktop-experiences-option">Desktop Experiences</option>
     </select>
   </div>
 
@@ -145,6 +145,27 @@
     </div>
     <form id="options-form"></form>
   </dialog>
+
+  <!-- Desktop Experience Modal for Mobile Users -->
+  <div id="desktop-experience-modal" class="desktop-modal-overlay" style="display: none;">
+    <div class="desktop-modal-content">
+      <div class="desktop-modal-header">
+        <h2>🖥️ Desktop Experience Required</h2>
+      </div>
+      <div class="desktop-modal-body">
+        <p>This interactive artwork is designed for <strong>desktop viewing</strong> and requires a larger screen for the best experience.</p>
+        <p>Please visit this page on a desktop or laptop computer to enjoy the full interactive features.</p>
+        <div class="desktop-modal-actions">
+          <button id="desktop-modal-close" class="desktop-modal-btn desktop-modal-btn-primary">
+            Continue Browsing
+          </button>
+          <button id="desktop-modal-share" class="desktop-modal-btn desktop-modal-btn-secondary">
+            Share to Desktop
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
   <script>
