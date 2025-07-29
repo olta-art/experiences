@@ -1,2 +1,0 @@
-Mobile playlist fix deployed at $(date)
-This file confirms our deployment is working.
