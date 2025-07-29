@@ -1,0 +1,3 @@
+Deployment test - $(date)
+This file confirms that Vercel is now deploying from GitHub automatically.
+Mobile fix should be live!
