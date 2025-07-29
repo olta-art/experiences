@@ -27,6 +27,49 @@
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  
+  <!-- Mobile Detection and Playlist Default Script -->
+  <script>
+    // Immediate mobile detection and playlist default
+    (function() {
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      console.log('🚀 IMMEDIATE MOBILE FIX - Is Mobile:', isMobile);
+      
+      if (isMobile) {
+        // Set mobile flag for later use
+        window.MOBILE_DEVICE_DETECTED = true;
+        console.log('🚀 Mobile device detected - will default to Desktop Experiences');
+        
+        // Try to update the dropdown immediately when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+          const dropdown = document.getElementById('playlist-dropdown');
+          if (dropdown) {
+            dropdown.value = 'desktop-experiences';
+            console.log('🚀 Updated dropdown to desktop-experiences for mobile');
+          }
+          
+          // Update playlist header for mobile
+          const header = document.getElementById('playlist-header');
+          if (header) {
+            const title = header.querySelector('.playlist-title');
+            const desc = header.querySelector('.playlist-description');
+            if (title) title.textContent = 'Desktop Experiences';
+            if (desc) desc.textContent = 'Interactive digital artworks optimized for mobile viewing';
+            console.log('🚀 Updated header for mobile device');
+          }
+          
+          // Force switch to desktop experiences playlist
+          if (window.switchPlaylist && typeof window.switchPlaylist === 'function') {
+            setTimeout(() => {
+              window.switchPlaylist('desktop-experiences');
+              console.log('🚀 Forced switch to desktop-experiences playlist');
+            }, 1000);
+          }
+        });
+      }
+    })();
+  </script>
+  
   <meta property="og:title" content="Interactive Art Experiences | Olta">
   <meta property="og:description" content="Explore curated digital artworks and interactive experiences">
   <meta property="og:type" content="website">
