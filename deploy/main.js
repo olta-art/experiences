@@ -631,6 +631,8 @@ function setCurrentProjectIdGlobal() {
 const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 console.log('[MOBILE_DETECTION] User Agent:', navigator.userAgent);
 console.log('[MOBILE_DETECTION] Is Mobile Device:', isMobile);
+console.log('🚀 MOBILE FIX DEPLOYED - Mobile devices should default to Desktop Experiences');
+console.log('🚀 Current default playlist:', isMobile ? 'desktop-experiences' : 'gesture-control');
 
 // List of gesture/spatial controlled artwork names to exclude on mobile
 // Note: Dissolvi is kept for mobile, others are excluded
