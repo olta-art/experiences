@@ -629,6 +629,8 @@ function setCurrentProjectIdGlobal() {
 
 // Detect mobile device
 const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+console.log('[MOBILE_DETECTION] User Agent:', navigator.userAgent);
+console.log('[MOBILE_DETECTION] Is Mobile Device:', isMobile);
 
 // List of gesture/spatial controlled artwork names to exclude on mobile
 // Note: Dissolvi is kept for mobile, others are excluded
@@ -904,6 +906,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // Playlist dropdown logic
   const playlistDropdown = document.getElementById('playlist-dropdown');
   if (playlistDropdown) {
+    // Set default selection based on device type
+    const defaultPlaylist = isMobile ? 'desktop-experiences' : 'gesture-control';
+    playlistDropdown.value = defaultPlaylist;
+    
+    // Update playlist header immediately based on device type
+    const playlistHeader = document.getElementById('playlist-header');
+    if (playlistHeader) {
+      const title = playlistHeader.querySelector('.playlist-title');
+      const desc = playlistHeader.querySelector('.playlist-description');
+      if (defaultPlaylist === 'desktop-experiences') {
+        if (title) title.textContent = 'Desktop Experiences';
+        if (desc) desc.textContent = 'Interactive digital artworks for desktop viewing';
+      } else {
+        if (title) title.textContent = 'Gesture Control – Interactive Experiences';
+        if (desc) desc.textContent = 'Motion-controlled digital artworks that respond to your movements';
+      }
+    }
+    
     playlistDropdown.addEventListener('change', (e) => {
       const playlistId = playlistDropdown.value;
       if (window.switchPlaylist) {
@@ -947,7 +967,8 @@ const playlists = {
   }
 };
 
-let currentPlaylistId = 'gesture-control'; // Default
+// Default playlist - use desktop experiences on mobile to avoid camera/gesture issues
+let currentPlaylistId = isMobile ? 'desktop-experiences' : 'gesture-control';
 
 // Function to detect which playlist contains a given artwork ID
 function getPlaylistForArtwork(artworkId) {
@@ -1000,9 +1021,10 @@ function handleInitialUrlRouting() {
     return;
   }
   
-  // Default to gesture-control
-  console.log('[INIT_ROUTE] Using default playlist: gesture-control');
-  switchPlaylist('gesture-control');
+  // Default to desktop-experiences on mobile, gesture-control on desktop
+  const defaultPlaylist = isMobile ? 'desktop-experiences' : 'gesture-control';
+  console.log(`[INIT_ROUTE] Using default playlist for ${isMobile ? 'mobile' : 'desktop'}: ${defaultPlaylist}`);
+  switchPlaylist(defaultPlaylist);
 }
 
 function switchPlaylist(playlistId) {
