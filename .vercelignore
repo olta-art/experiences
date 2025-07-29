@@ -1,0 +1,8 @@
+# Ignore unnecessary files
+.git
+.gitignore
+README.md
+.DS_Store
+firebase-debug.log
+*.log
+node_modules
