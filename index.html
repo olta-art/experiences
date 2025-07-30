@@ -58,12 +58,18 @@
             console.log('🚀 Updated header for mobile device');
           }
           
-          // Force switch to desktop experiences playlist
-          if (window.switchPlaylist && typeof window.switchPlaylist === 'function') {
+          // Force switch to desktop experiences playlist ONLY if no URL parameters
+          const urlParams = new URLSearchParams(window.location.search);
+          const artworkParam = urlParams.get('artwork');
+          const playlistParam = urlParams.get('playlist');
+          
+          if (!artworkParam && !playlistParam && window.switchPlaylist && typeof window.switchPlaylist === 'function') {
             setTimeout(() => {
               window.switchPlaylist('desktop-experiences');
-              console.log('🚀 Forced switch to desktop-experiences playlist');
+              console.log('🚀 Forced switch to desktop-experiences playlist (no URL params)');
             }, 1000);
+          } else if (artworkParam || playlistParam) {
+            console.log('🚀 URL parameters detected - letting main.js handle routing:', { artworkParam, playlistParam });
           }
         });
       }
