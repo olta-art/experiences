@@ -1,0 +1,3 @@
+Webhook test - $(date)
+This commit should trigger automatic Vercel deployment via webhook.
+If you see this deployed, the integration is working!
