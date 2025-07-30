@@ -407,20 +407,42 @@
     document.getElementById('share-btn').addEventListener('click', async () => {
       console.log('[SHARE] Share button clicked');
 
-      // Get current artwork ID - use window.currentProjectId as primary source
-      const artworkId = window.currentProjectId || '';
+      // Get current artwork ID with multiple fallbacks
+      let artworkId = window.currentProjectId || '';
+      
+      // Try to get from options.projects and current index
+      if (!artworkId && window.options && window.options.projects && typeof window.current !== 'undefined') {
+        artworkId = window.options.projects[window.current] || '';
+      }
+      
+      // Try to get from projects array
+      if (!artworkId && window.projects && typeof window.current !== 'undefined') {
+        const currentProject = window.projects[window.current];
+        artworkId = currentProject ? currentProject.id : '';
+      }
+      
       console.log('[SHARE] Current artwork ID:', artworkId);
 
-      // Get current artwork info from the global currentProject function
+      // Get current artwork info with multiple fallbacks
       let projectName = '';
       let artistName = '';
 
+      // Method 1: Use currentProject function
       if (window.currentProject && typeof window.currentProject === 'function') {
         const currentProj = window.currentProject();
         console.log('[SHARE] Current project:', currentProj);
         if (currentProj) {
           projectName = currentProj.name || '';
           artistName = currentProj.creator?.profile?.name || '';
+        }
+      }
+      
+      // Method 2: Try direct array access if function didn't work
+      if (!projectName && window.projects && typeof window.current !== 'undefined') {
+        const currentProject = window.projects[window.current];
+        if (currentProject) {
+          projectName = currentProject.name || '';
+          artistName = currentProject.creator?.profile?.name || '';
         }
       }
 
@@ -462,20 +484,27 @@
       }
 
       // Build URLs - ALWAYS use the artwork ID, never the name
-      const baseUrl = window.location.origin + window.location.pathname;
-      const artworkUrl = `${baseUrl}?artwork=${encodeURIComponent(artworkId)}`;
+      // Use production domain instead of preview URL
+      const baseUrl = 'https://experiences.olta.art';
+      const artworkUrl = artworkId ? `${baseUrl}?artwork=${encodeURIComponent(artworkId)}` : baseUrl;
       const playlistUrl = `${baseUrl}?playlist=${encodeURIComponent(playlistId)}`;
 
       console.log('[SHARE] Built URLs:', { artworkUrl, playlistUrl });
 
-      // Build share text
-      let tweetText = `Check out interactive artwork "${projectName}"`;
-      if (twitterHandle) {
-        tweetText += ` by ${twitterHandle}`;
-      } else if (artistName) {
-        tweetText += ` by ${artistName}`;
+      // Build share text with fallbacks
+      let tweetText;
+      if (projectName && artworkId) {
+        tweetText = `Check out interactive artwork "${projectName}"`;
+        if (twitterHandle) {
+          tweetText += ` by ${twitterHandle}`;
+        } else if (artistName) {
+          tweetText += ` by ${artistName}`;
+        }
+        tweetText += ` from the curated playlist on Olta! ${artworkUrl}\n\nSee the full curated experience playlist here: ${playlistUrl}`;
+      } else {
+        // Fallback when no specific artwork is available
+        tweetText = `Check out the curated interactive art experiences on Olta! ${baseUrl}\n\nExplore digital artworks that respond to your movements and interactions.`;
       }
-      tweetText += ` from the curated playlist on Olta! ${artworkUrl}\n\nSee the full curated experience playlist here: ${playlistUrl}`;
 
       console.log('[SHARE] Final tweet text:', tweetText);
 
