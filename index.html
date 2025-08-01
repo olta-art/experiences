@@ -59,14 +59,28 @@
           }
           
           // Force switch to desktop experiences playlist ONLY if no URL parameters
+          // Enhanced debugging for mobile URL parameter detection
+          console.log('🚀 [MOBILE_DEBUG] Full URL:', window.location.href);
+          console.log('🚀 [MOBILE_DEBUG] Search string:', window.location.search);
+          
           const urlParams = new URLSearchParams(window.location.search);
           const artworkParam = urlParams.get('artwork');
           const playlistParam = urlParams.get('playlist');
           
+          console.log('🚀 [MOBILE_DEBUG] URL parameters parsed:', { artworkParam, playlistParam });
+          
+          // Set global flag to indicate URL parameter handling status
+          window.MOBILE_URL_PARAMS_DETECTED = !!(artworkParam || playlistParam);
+          
           if (!artworkParam && !playlistParam && window.switchPlaylist && typeof window.switchPlaylist === 'function') {
             setTimeout(() => {
-              window.switchPlaylist('desktop-experiences');
-              console.log('🚀 Forced switch to desktop-experiences playlist (no URL params)');
+              // Double-check that main.js hasn't already handled URL routing
+              if (!window.MAIN_JS_URL_ROUTING_COMPLETE) {
+                window.switchPlaylist('desktop-experiences');
+                console.log('🚀 Forced switch to desktop-experiences playlist (no URL params)');
+              } else {
+                console.log('🚀 Skipping mobile playlist switch - main.js already handled routing');
+              }
             }, 1000);
           } else if (artworkParam || playlistParam) {
             console.log('🚀 URL parameters detected - letting main.js handle routing:', { artworkParam, playlistParam });

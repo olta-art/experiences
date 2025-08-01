@@ -994,9 +994,21 @@ function getPlaylistForArtwork(artworkId) {
 
 // Function to handle initial URL routing
 function handleInitialUrlRouting() {
+  // Enhanced debugging for deployment URL parameter issues
+  console.log('[DEBUG_URL] Full URL:', window.location.href);
+  console.log('[DEBUG_URL] Search string:', window.location.search);
+  console.log('[DEBUG_URL] Hash:', window.location.hash);
+  console.log('[DEBUG_URL] Pathname:', window.location.pathname);
+  
   const params = new URLSearchParams(window.location.search);
   const artworkId = params.get('artwork');
   const playlistParam = params.get('playlist');
+  
+  // Log all URL parameters for debugging
+  console.log('[DEBUG_URL] All URL parameters:');
+  for (const [key, value] of params.entries()) {
+    console.log(`[DEBUG_URL] ${key} = ${value}`);
+  }
   
   console.log('[INIT_ROUTE] URL params:', { artworkId, playlistParam });
   console.log('[INIT_ROUTE] Available projects - API:', window.filteredProjects?.length || 0, 'Static:', staticArtworks.length);
@@ -1010,6 +1022,7 @@ function handleInitialUrlRouting() {
       // Switch to the correct playlist first
       console.log('[INIT_ROUTE] Switching to playlist:', correctPlaylist);
       switchPlaylist(correctPlaylist);
+      window.MAIN_JS_URL_ROUTING_COMPLETE = true;
       return;
     } else {
       console.log('[INIT_ROUTE] Artwork not found in any playlist, using default');
@@ -1020,13 +1033,40 @@ function handleInitialUrlRouting() {
     // If there's a playlist parameter, use that
     console.log('[INIT_ROUTE] Switching to playlist from URL:', playlistParam);
     switchPlaylist(playlistParam);
+    window.MAIN_JS_URL_ROUTING_COMPLETE = true;
     return;
   }
   
   // Default to desktop-experiences on mobile, gesture-control on desktop
   const defaultPlaylist = isMobile ? 'desktop-experiences' : 'gesture-control';
   console.log(`[INIT_ROUTE] Using default playlist for ${isMobile ? 'mobile' : 'desktop'}: ${defaultPlaylist}`);
+  
+  // Check if mobile detection already found URL parameters
+  if (window.MOBILE_URL_PARAMS_DETECTED) {
+    console.log('[INIT_ROUTE] Mobile detection already found URL params, but they were not processed correctly');
+    // Force re-parsing in case of deployment issues
+    const reParams = new URLSearchParams(window.location.search);
+    const reArtworkId = reParams.get('artwork');
+    const rePlaylistParam = reParams.get('playlist');
+    console.log('[INIT_ROUTE] Re-parsed URL params:', { reArtworkId, rePlaylistParam });
+    
+    if (reArtworkId) {
+      const correctPlaylist = getPlaylistForArtwork(reArtworkId);
+      if (correctPlaylist) {
+        switchPlaylist(correctPlaylist);
+        window.MAIN_JS_URL_ROUTING_COMPLETE = true;
+        return;
+      }
+    }
+    if (rePlaylistParam) {
+      switchPlaylist(rePlaylistParam);
+      window.MAIN_JS_URL_ROUTING_COMPLETE = true;
+      return;
+    }
+  }
+  
   switchPlaylist(defaultPlaylist);
+  window.MAIN_JS_URL_ROUTING_COMPLETE = true;
 }
 
 function switchPlaylist(playlistId) {
