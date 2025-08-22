@@ -27,27 +27,27 @@
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  
+
   <!-- Mobile Detection and Playlist Default Script -->
   <script>
     // Immediate mobile detection and playlist default
-    (function() {
+    (function () {
       const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       console.log('🚀 IMMEDIATE MOBILE FIX - Is Mobile:', isMobile);
-      
+
       if (isMobile) {
         // Set mobile flag for later use
         window.MOBILE_DEVICE_DETECTED = true;
         console.log('🚀 Mobile device detected - will default to Desktop Experiences');
-        
+
         // Try to update the dropdown immediately when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
           const dropdown = document.getElementById('playlist-dropdown');
           if (dropdown) {
             dropdown.value = 'desktop-experiences';
             console.log('🚀 Updated dropdown to desktop-experiences for mobile');
           }
-          
+
           // Update playlist header for mobile
           const header = document.getElementById('playlist-header');
           if (header) {
@@ -57,12 +57,12 @@
             if (desc) desc.textContent = 'Interactive digital artworks optimized for mobile viewing';
             console.log('🚀 Updated header for mobile device');
           }
-          
+
           // Force switch to desktop experiences playlist ONLY if no URL parameters
           const urlParams = new URLSearchParams(window.location.search);
           const artworkParam = urlParams.get('artwork');
           const playlistParam = urlParams.get('playlist');
-          
+
           if (!artworkParam && !playlistParam && window.switchPlaylist && typeof window.switchPlaylist === 'function') {
             setTimeout(() => {
               window.switchPlaylist('desktop-experiences');
@@ -75,7 +75,7 @@
       }
     })();
   </script>
-  
+
   <meta property="og:title" content="Interactive Art Experiences | Olta">
   <meta property="og:description" content="Explore curated digital artworks and interactive experiences">
   <meta property="og:type" content="website">
@@ -409,18 +409,18 @@
 
       // Get current artwork ID with multiple fallbacks
       let artworkId = window.currentProjectId || '';
-      
+
       // Try to get from options.projects and current index
       if (!artworkId && window.options && window.options.projects && typeof window.current !== 'undefined') {
         artworkId = window.options.projects[window.current] || '';
       }
-      
+
       // Try to get from projects array
       if (!artworkId && window.projects && typeof window.current !== 'undefined') {
         const currentProject = window.projects[window.current];
         artworkId = currentProject ? currentProject.id : '';
       }
-      
+
       console.log('[SHARE] Current artwork ID:', artworkId);
 
       // Get current artwork info with multiple fallbacks
@@ -436,7 +436,7 @@
           artistName = currentProj.creator?.profile?.name || '';
         }
       }
-      
+
       // Method 2: Try direct array access if function didn't work
       if (!projectName && window.projects && typeof window.current !== 'undefined') {
         const currentProject = window.projects[window.current];
