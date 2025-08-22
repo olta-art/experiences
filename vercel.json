@@ -6,11 +6,6 @@
             "use": "@vercel/static"
         }
     ],
-    "git": {
-        "deploymentEnabled": {
-            "main": true
-        }
-    },
     "rewrites": [
         {
             "source": "/(.*)",
