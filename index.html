@@ -30,6 +30,7 @@
 
   <!-- Mobile Detection and Playlist Default Script -->
   <script>
+    // hi 
     // Immediate mobile detection and playlist default
     (function () {
       const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -87,6 +88,19 @@
 </head>
 
 <body>
+  <!-- Mobile Device Notice -->
+  <div id="mobile-notice" class="mobile-notice">
+    <div class="mobile-notice-content">
+      <div class="mobile-notice-icon">💻</div>
+      <div class="mobile-notice-text">
+        <h3>Desktop Experience Recommended</h3>
+        <p>For the best interactive experience, please view this app on a desktop computer or laptop. The
+          gesture-controlled artworks require camera access and larger screen real estate.</p>
+        <button id="mobile-continue-btn" class="mobile-continue-btn">Continue Anyway</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Top Left Status Bar for Playlist Selection -->
   <div id="top-left-status-bar">
     <span class="status-icon" aria-label="Playlist selector">
@@ -1286,6 +1300,41 @@
       await navigator.clipboard.writeText(url);
       alert('Playlist link copied!');
       // Optionally open Twitter, etc.
+    });
+
+    // Mobile Device Detection and Notice
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileNotice = document.getElementById('mobile-notice');
+      const continueBtn = document.getElementById('mobile-continue-btn');
+
+      // Check if device is mobile
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isSmallScreen = window.innerWidth <= 768;
+
+      if (isMobile || isSmallScreen) {
+        // Show mobile notice
+        mobileNotice.classList.add('show');
+
+        // Handle continue button
+        continueBtn.addEventListener('click', () => {
+          mobileNotice.classList.remove('show');
+          // Optionally track that user continued on mobile
+          if (window.gtag) {
+            gtag('event', 'mobile_continue', {
+              'device_type': 'mobile',
+              'screen_width': window.innerWidth
+            });
+          }
+        });
+
+        // Track mobile visit
+        if (window.gtag) {
+          gtag('event', 'mobile_visit', {
+            'device_type': 'mobile',
+            'screen_width': window.innerWidth
+          });
+        }
+      }
     });
 
 
