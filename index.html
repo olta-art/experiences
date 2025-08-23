@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Olta Kiosk</title>
+  <title>Olta - Curated Experiences</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
     integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
@@ -45,8 +45,8 @@
         document.addEventListener('DOMContentLoaded', function () {
           const dropdown = document.getElementById('playlist-dropdown');
           if (dropdown) {
-            dropdown.value = 'desktop-experiences';
-            console.log('🚀 Updated dropdown to desktop-experiences for mobile');
+            dropdown.value = 'mobile-optimized';
+            console.log('🚀 Updated dropdown to mobile-optimized for mobile');
           }
 
           // Update playlist header for mobile
@@ -54,20 +54,20 @@
           if (header) {
             const title = header.querySelector('.playlist-title');
             const desc = header.querySelector('.playlist-description');
-            if (title) title.textContent = 'Desktop Experiences';
-            if (desc) desc.textContent = 'Interactive digital artworks optimized for mobile viewing';
+            if (title) title.textContent = 'Mobile Optimized';
+            if (desc) desc.textContent = 'Touch-friendly artworks optimized for mobile devices';
             console.log('🚀 Updated header for mobile device');
           }
 
-          // Force switch to desktop experiences playlist ONLY if no URL parameters
+          // Force switch to mobile-optimized playlist ONLY if no URL parameters
           const urlParams = new URLSearchParams(window.location.search);
           const artworkParam = urlParams.get('artwork');
           const playlistParam = urlParams.get('playlist');
 
           if (!artworkParam && !playlistParam && window.switchPlaylist && typeof window.switchPlaylist === 'function') {
             setTimeout(() => {
-              window.switchPlaylist('desktop-experiences');
-              console.log('🚀 Forced switch to desktop-experiences playlist (no URL params)');
+              window.switchPlaylist('mobile-optimized');
+              console.log('🚀 Forced switch to mobile-optimized playlist (no URL params)');
             }, 1000);
           } else if (artworkParam || playlistParam) {
             console.log('🚀 URL parameters detected - letting main.js handle routing:', { artworkParam, playlistParam });
@@ -91,12 +91,15 @@
   <!-- Mobile Device Notice -->
   <div id="mobile-notice" class="mobile-notice">
     <div class="mobile-notice-content">
-      <div class="mobile-notice-icon">💻</div>
+      <div class="mobile-notice-icon">📱✨</div>
       <div class="mobile-notice-text">
-        <h3>Desktop Experience Recommended</h3>
-        <p>For the best interactive experience, please view this app on a desktop computer or laptop. The
-          gesture-controlled artworks require camera access and larger screen real estate.</p>
-        <button id="mobile-continue-btn" class="mobile-continue-btn">Continue Anyway</button>
+        <h3>Welcome Mobile Users! 📱</h3>
+        <p>You're viewing our <strong>Mobile Optimized</strong> playlist with touch-friendly artworks! While some
+          experiences work best on desktop, we've curated special mobile-friendly pieces just for you.</p>
+        <div class="mobile-cta">
+          <p><strong>💡 Pro tip:</strong> Visit on desktop for the full gesture-controlled experience!</p>
+        </div>
+        <button id="mobile-continue-btn" class="mobile-continue-btn">Start Exploring Mobile Artworks</button>
       </div>
     </div>
   </div>
@@ -112,15 +115,16 @@
       </svg>
     </span>
     <select id="playlist-dropdown">
-      <option value="gesture-control" selected>Gesture Control</option>
+      <option value="gesture-control">Gesture Control</option>
       <option value="desktop-experiences">Desktop Experiences</option>
+      <option value="mobile-optimized">Mobile Optimized</option>
     </select>
   </div>
 
   <!-- Playlist Header - Repositioned and Styled -->
   <div id="playlist-header" class="playlist-header">
-    <div class="playlist-title">Loading Experiences... [MOBILE FIX DEPLOYED]</div>
-    <div class="playlist-description">Mobile devices now default to Desktop Experiences to avoid camera issues</div>
+    <div class="playlist-title">Loading Experiences... [MOBILE OPTIMIZED]</div>
+    <div class="playlist-description">Mobile devices now get a curated mobile-optimized playlist</div>
   </div>
 
   <!-- Top Right Status Bar (existing) -->
@@ -1074,6 +1078,9 @@
               } else if (playlistId === 'desktop-experiences') {
                 title.textContent = 'Desktop Experiences';
                 desc.textContent = 'Interactive digital artworks for desktop viewing';
+              } else if (playlistId === 'mobile-optimized') {
+                title.textContent = 'Mobile Optimized';
+                desc.textContent = 'Touch-friendly artworks optimized for mobile devices';
               }
             }
           });
@@ -1106,6 +1113,23 @@
             showPlaylistHeaderWithTimer();
           } else {
             console.error('switchPlaylist function not available');
+          }
+
+          // Update playlist header
+          const playlistHeader = document.getElementById('playlist-header');
+          if (playlistHeader) {
+            const title = playlistHeader.querySelector('.playlist-title');
+            const desc = playlistHeader.querySelector('.playlist-description');
+            if (playlistId === 'gesture-control') {
+              title.textContent = 'Gesture Control – Interactive Experiences';
+              desc.textContent = 'Motion-controlled digital artworks that respond to your movements';
+            } else if (playlistId === 'desktop-experiences') {
+              title.textContent = 'Desktop Experiences';
+              desc.textContent = 'Interactive digital artworks for desktop viewing';
+            } else if (playlistId === 'mobile-optimized') {
+              title.textContent = 'Mobile Optimized';
+              desc.textContent = 'Touch-friendly artworks optimized for mobile devices';
+            }
           }
         });
       }
@@ -1147,6 +1171,10 @@
         'desktop-experiences': {
           name: 'Desktop Experiences',
           description: 'Interactive digital artworks for desktop viewing'
+        },
+        'mobile-optimized': {
+          name: 'Mobile Optimized',
+          description: 'Touch-friendly artworks optimized for mobile devices'
         }
       };
 
