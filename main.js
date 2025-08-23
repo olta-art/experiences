@@ -979,7 +979,12 @@ const playlists = {
   'mobile-optimized': {
     name: 'Mobile Optimized',
     description: 'Touch-friendly artworks optimized for mobile devices',
-    artworks: ['Faded-Memories', 'Dissolvi']
+    artworks: [
+      'Faded-Memories',  // Your desktop artwork that works on mobile
+      'Dissolvi',         // Already mobile-compatible
+      '0x510da17477ba0a23858c59e9bf80b8d8ad1b6ee', // FIELDS - works on mobile
+      '0xe94100850ee7507dd57eb1ba67dc0600b18122df' // Morphed Radiance - works on mobile
+    ]
   }
 };
 
@@ -1014,6 +1019,8 @@ function handleInitialUrlRouting() {
   
   console.log('[INIT_ROUTE] URL params:', { artworkId, playlistParam });
   console.log('[INIT_ROUTE] Available projects - API:', window.filteredProjects?.length || 0, 'Static:', staticArtworks.length);
+  console.log('[INIT_ROUTE] Is mobile device:', isMobile);
+  console.log('[INIT_ROUTE] Available playlists:', Object.keys(playlists));
   
   if (artworkId) {
     // If there's an artwork ID, find which playlist it belongs to

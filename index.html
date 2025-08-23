@@ -59,18 +59,34 @@
             console.log('🚀 Updated header for mobile device');
           }
 
-          // Force switch to mobile-optimized playlist ONLY if no URL parameters
+          // Check URL parameters - if they exist, let main.js handle routing
           const urlParams = new URLSearchParams(window.location.search);
           const artworkParam = urlParams.get('artwork');
           const playlistParam = urlParams.get('playlist');
 
-          if (!artworkParam && !playlistParam && window.switchPlaylist && typeof window.switchPlaylist === 'function') {
-            setTimeout(() => {
-              window.switchPlaylist('mobile-optimized');
-              console.log('🚀 Forced switch to mobile-optimized playlist (no URL params)');
-            }, 1000);
-          } else if (artworkParam || playlistParam) {
+          console.log('🚀 Mobile detection - URL params:', { artworkParam, playlistParam });
+
+          if (artworkParam || playlistParam) {
             console.log('🚀 URL parameters detected - letting main.js handle routing:', { artworkParam, playlistParam });
+            // Don't force any playlist change - let main.js handle it
+            // But update the dropdown to show the correct playlist later
+            setTimeout(() => {
+              if (window.currentPlaylistId) {
+                const dropdown = document.getElementById('playlist-dropdown');
+                if (dropdown && dropdown.value !== window.currentPlaylistId) {
+                  dropdown.value = window.currentPlaylistId;
+                  console.log('🚀 Updated dropdown to match main.js playlist:', window.currentPlaylistId);
+                }
+              }
+            }, 2000); // Wait for main.js to finish routing
+          } else {
+            // Only force mobile-optimized if no URL parameters exist
+            if (window.switchPlaylist && typeof window.switchPlaylist === 'function') {
+              setTimeout(() => {
+                window.switchPlaylist('mobile-optimized');
+                console.log('🚀 No URL params - switched to mobile-optimized playlist');
+              }, 1000);
+            }
           }
         });
       }

@@ -631,8 +631,8 @@ function setCurrentProjectIdGlobal() {
 const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 console.log('[MOBILE_DETECTION] User Agent:', navigator.userAgent);
 console.log('[MOBILE_DETECTION] Is Mobile Device:', isMobile);
-console.log('🚀 MOBILE FIX DEPLOYED - Mobile devices should default to Desktop Experiences');
-console.log('🚀 Current default playlist:', isMobile ? 'desktop-experiences' : 'gesture-control');
+console.log('🚀 MOBILE OPTIMIZED DEPLOYED - Mobile devices now get a curated mobile playlist');
+console.log('🚀 Current default playlist:', isMobile ? 'mobile-optimized' : 'gesture-control');
 
 // List of gesture/spatial controlled artwork names to exclude on mobile
 // Note: Dissolvi is kept for mobile, others are excluded
@@ -683,6 +683,12 @@ const desktopPlaylist = [
   "Meanwhile",
   "Morphed Radiance",
   "Faded Memories"
+];
+
+// Mobile-optimized playlist - artworks that work well on mobile
+const mobilePlaylist = [
+  "Faded-Memories",  // Your desktop artwork that works on mobile
+  "Dissolvi"         // This one works on mobile (you mentioned it's kept)
 ];
 
 (async function fetchProjects() {
@@ -909,7 +915,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const playlistDropdown = document.getElementById('playlist-dropdown');
   if (playlistDropdown) {
     // Set default selection based on device type
-    const defaultPlaylist = isMobile ? 'desktop-experiences' : 'gesture-control';
+    const defaultPlaylist = isMobile ? 'mobile-optimized' : 'gesture-control';
     playlistDropdown.value = defaultPlaylist;
     
     // Update playlist header immediately based on device type
@@ -917,9 +923,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (playlistHeader) {
       const title = playlistHeader.querySelector('.playlist-title');
       const desc = playlistHeader.querySelector('.playlist-description');
-      if (defaultPlaylist === 'desktop-experiences') {
-        if (title) title.textContent = 'Desktop Experiences';
-        if (desc) desc.textContent = 'Interactive digital artworks for desktop viewing';
+      if (defaultPlaylist === 'mobile-optimized') {
+        if (title) title.textContent = 'Mobile Optimized';
+        if (desc) desc.textContent = 'Touch-friendly artworks optimized for mobile devices';
       } else {
         if (title) title.textContent = 'Gesture Control – Interactive Experiences';
         if (desc) desc.textContent = 'Motion-controlled digital artworks that respond to your movements';
@@ -942,6 +948,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (playlistId === 'desktop-experiences') {
           title.textContent = 'Desktop Experiences';
           desc.textContent = 'Interactive digital artworks for desktop viewing';
+        } else if (playlistId === 'mobile-optimized') {
+          title.textContent = 'Mobile Optimized';
+          desc.textContent = 'Touch-friendly artworks optimized for mobile devices';
         }
       }
     });
@@ -962,15 +971,25 @@ const playlists = {
     name: 'Desktop Experiences',
     description: 'Interactive digital artworks for desktop viewing',
     artworks: [
-      '0x510da17477baa0a23858c59e9bf80b8d8ad1b6ee', // FIELDS
+      '0x510da17477ba0a23858c59e9bf80b8d8ad1b6ee', // FIELDS
       'Faded-Memories',
       '0xe94100850ee7507dd57eb1ba67dc0600b18122df' // Morphed Radiance
+    ]
+  },
+  'mobile-optimized': {
+    name: 'Mobile Optimized',
+    description: 'Touch-friendly artworks optimized for mobile devices',
+    artworks: [
+      'Faded-Memories',  // Your desktop artwork that works on mobile
+      'Dissolvi',         // Already mobile-compatible
+      '0x510da17477ba0a23858c59e9bf80b8d8ad1b6ee', // FIELDS - works on mobile
+      '0xe94100850ee7507dd57eb1ba67dc0600b18122df' // Morphed Radiance - works on mobile
     ]
   }
 };
 
-// Default playlist - use desktop experiences on mobile to avoid camera/gesture issues
-let currentPlaylistId = isMobile ? 'desktop-experiences' : 'gesture-control';
+// Default playlist - use mobile-optimized on mobile, gesture-control on desktop
+let currentPlaylistId = isMobile ? 'mobile-optimized' : 'gesture-control';
 
 // Function to detect which playlist contains a given artwork ID
 function getPlaylistForArtwork(artworkId) {
@@ -1000,6 +1019,8 @@ function handleInitialUrlRouting() {
   
   console.log('[INIT_ROUTE] URL params:', { artworkId, playlistParam });
   console.log('[INIT_ROUTE] Available projects - API:', window.filteredProjects?.length || 0, 'Static:', staticArtworks.length);
+  console.log('[INIT_ROUTE] Is mobile device:', isMobile);
+  console.log('[INIT_ROUTE] Available playlists:', Object.keys(playlists));
   
   if (artworkId) {
     // If there's an artwork ID, find which playlist it belongs to
@@ -1023,8 +1044,8 @@ function handleInitialUrlRouting() {
     return;
   }
   
-  // Default to desktop-experiences on mobile, gesture-control on desktop
-  const defaultPlaylist = isMobile ? 'desktop-experiences' : 'gesture-control';
+  // Default to mobile-optimized on mobile, gesture-control on desktop
+  const defaultPlaylist = isMobile ? 'mobile-optimized' : 'gesture-control';
   console.log(`[INIT_ROUTE] Using default playlist for ${isMobile ? 'mobile' : 'desktop'}: ${defaultPlaylist}`);
   switchPlaylist(defaultPlaylist);
 }
