@@ -3,14 +3,12 @@
 export const URL = self.URL || window.webkitURL
 
 // TODO: You need to add your own API key from https://thegraph.com/explorer/
+// Using the working API key
 const THE_GRAPH_API_KEY = "d11db1e253bf0c5eb89cb8ecf5f82a15";
 
-//d11db1e253bf0c5eb89cb8ecf5f82a15
-
-// 22638926cd51e225989e7f42288bcf8c
-// 22638926cd51e225989e7f42288bcf8c
-
-//const THE_GRAPH_API_KEY = "3eGGTUNpbmzMZx2UrHyDzWTKaQeawGpPPUuJQSxg3LZQ";
+// Alternative API keys (commented out for now)
+// const THE_GRAPH_API_KEY = "3eGGTUNpbmzMZx2UrHyDzWTKaQeawGpPPUuJQSxg3LZQ"; // This was malformed
+// const THE_GRAPH_API_KEY = "22638926cd51e225989e7f42288bcf8c";
 
 
 export const POLL_RATE = 10000
@@ -66,18 +64,12 @@ export function downloader(timeout = 100 * 1000) {
 
 export async function queryfetcher(url, query) {
   const download = downloader(20000)
+  
+  // Debug API key being used
+  console.log('[GRAPH_API] Using API key:', THE_GRAPH_API_KEY);
+  console.log('[GRAPH_API] API key length:', THE_GRAPH_API_KEY?.length || 0);
+  
   const options = {
-    // Example query input:
-    // query {
-    //   tokenContract(id: "xoxoxoxoxo") {
-    //     tokens {
-    //       editionNumber
-    //       owner {
-    //         id
-    //       }
-    //     }
-    //   }
-    // }
     body: JSON.stringify({ query }),
     headers: {
       "Content-Type": "application/json",
@@ -111,12 +103,4 @@ export function decode(s = "") {
     .replaceAll(`\\\\`, `\\`)
 }
 
-// Example: filter out gesture artworks on mobile
-if (isMobile) {
-  filteredStaticArtworks = filteredStaticArtworks.filter(
-    art => !art.isGesture // or use a name/ID check
-  );
-  filteredProjects = filteredProjects.filter(
-    project => !project.isGesture // or use a name/ID check
-  );
-}
+

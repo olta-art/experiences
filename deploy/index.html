@@ -45,8 +45,8 @@
         document.addEventListener('DOMContentLoaded', function () {
           const dropdown = document.getElementById('playlist-dropdown');
           if (dropdown) {
-            dropdown.value = 'mobile-optimized';
-            console.log('🚀 Updated dropdown to mobile-optimized for mobile');
+            dropdown.value = 'gesture-control';
+            console.log('🚀 Updated dropdown to gesture-control for mobile');
           }
 
           // Update playlist header for mobile
@@ -54,8 +54,8 @@
           if (header) {
             const title = header.querySelector('.playlist-title');
             const desc = header.querySelector('.playlist-description');
-            if (title) title.textContent = 'Mobile Optimized';
-            if (desc) desc.textContent = 'Touch-friendly artworks optimized for mobile devices';
+            if (title) title.textContent = 'Gesture Control - Interactive Experiences';
+            if (desc) desc.textContent = 'Motion-controlled digital artworks that respond to your movements';
             console.log('🚀 Updated header for mobile device');
           }
 
@@ -80,11 +80,11 @@
               }
             }, 2000); // Wait for main.js to finish routing
           } else {
-            // Only force mobile-optimized if no URL parameters exist
+            // Only force gesture-control if no URL parameters exist
             if (window.switchPlaylist && typeof window.switchPlaylist === 'function') {
               setTimeout(() => {
-                window.switchPlaylist('mobile-optimized');
-                console.log('🚀 No URL params - switched to mobile-optimized playlist');
+                window.switchPlaylist('gesture-control');
+                console.log('🚀 No URL params - switched to gesture-control playlist');
               }, 1000);
             }
           }
@@ -133,15 +133,16 @@
     <select id="playlist-dropdown">
       <option value="gesture-control">Gesture Control</option>
       <option value="desktop-experiences">Desktop Experiences</option>
-      <option value="mobile-optimized">Mobile Optimized</option>
     </select>
   </div>
 
   <!-- Playlist Header - Repositioned and Styled -->
   <div id="playlist-header" class="playlist-header">
-    <div class="playlist-title">Loading Experiences... [MOBILE OPTIMIZED]</div>
-    <div class="playlist-description">Mobile devices now get a curated mobile-optimized playlist</div>
+    <div class="playlist-title">Loading Experiences... [GESTURE CONTROL]</div>
+    <div class="playlist-description">Interactive digital artworks that respond to your movements</div>
   </div>
+
+
 
   <!-- Top Right Status Bar (existing) -->
   <div id="top-status-bar">
@@ -1094,12 +1095,8 @@
               } else if (playlistId === 'desktop-experiences') {
                 title.textContent = 'Desktop Experiences';
                 desc.textContent = 'Interactive digital artworks for desktop viewing';
-              } else if (playlistId === 'mobile-optimized') {
-                title.textContent = 'Mobile Optimized';
-                desc.textContent = 'Touch-friendly artworks optimized for mobile devices';
               }
-            }
-          });
+            });
         });
       }
     });
@@ -1142,9 +1139,6 @@
             } else if (playlistId === 'desktop-experiences') {
               title.textContent = 'Desktop Experiences';
               desc.textContent = 'Interactive digital artworks for desktop viewing';
-            } else if (playlistId === 'mobile-optimized') {
-              title.textContent = 'Mobile Optimized';
-              desc.textContent = 'Touch-friendly artworks optimized for mobile devices';
             }
           }
         });
@@ -1187,10 +1181,6 @@
         'desktop-experiences': {
           name: 'Desktop Experiences',
           description: 'Interactive digital artworks for desktop viewing'
-        },
-        'mobile-optimized': {
-          name: 'Mobile Optimized',
-          description: 'Touch-friendly artworks optimized for mobile devices'
         }
       };
 
@@ -1322,6 +1312,8 @@
     // Start the hide timer when page loads
     document.addEventListener('DOMContentLoaded', () => {
       hidePlaylistDescriptionAfterDelay();
+
+
     });
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1337,14 +1329,7 @@
       }
     });
 
-    document.getElementById('share-playlist-btn').addEventListener('click', async () => {
-      const playlistDropdown = document.getElementById('playlist-dropdown');
-      const playlistId = playlistDropdown ? playlistDropdown.value : 'gesture-control';
-      const url = `${window.location.origin}${window.location.pathname}?playlist=${encodeURIComponent(playlistId)}`;
-      await navigator.clipboard.writeText(url);
-      alert('Playlist link copied!');
-      // Optionally open Twitter, etc.
-    });
+
 
     // Mobile Device Detection and Notice
     document.addEventListener('DOMContentLoaded', () => {
