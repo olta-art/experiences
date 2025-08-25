@@ -11,7 +11,7 @@ const staticArtworks = [
     editionSize: 1,
     symbol: "SHADOWS_TOUCH_ACROSS_TIME",
     lastAddedVersion: {
-      animation: { url: "https://epok.tech/shadows-touch-across-time-demo/?app.store.seed=false" }
+      animation: { url: "https://epok.tech/shadows-touch-across-time-demo/?app.store.seed=false/" }
     },
     qrCodeUrl: "https://epok.tech"
   },
