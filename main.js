@@ -925,13 +925,19 @@ if (isMobile) {
 // Only request camera access once on mobile
 let cameraStream = null;
 async function requestCameraOnce() {
-  if (isMobile) return; // Do not request camera on mobile
+  if (isMobile) {
+    console.log('[CAMERA] Mobile device detected - skipping camera request');
+    return; // Do not request camera on mobile
+  }
+  
   if (!cameraStream) {
     try {
+      console.log('[CAMERA] Requesting camera access for desktop device...');
       cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      console.log('[CAMERA] Camera access granted for desktop device');
       // Use cameraStream for gesture artworks
     } catch (err) {
-      console.error('Camera access error:', err);
+      console.error('[CAMERA] Camera access error:', err);
     }
   }
 }
@@ -1011,7 +1017,15 @@ async function fetchPeerIntoFlow() {
 (async function initializeApp() {
   try {
     console.log('[INIT] Starting app initialization...');
-    await requestCameraOnce();
+    console.log('[INIT] Device type:', isMobile ? 'Mobile' : 'Desktop');
+    
+    // Only request camera on desktop devices
+    if (!isMobile) {
+      console.log('[INIT] Desktop device detected - requesting camera access...');
+      await requestCameraOnce();
+    } else {
+      console.log('[INIT] Mobile device detected - skipping camera request');
+    }
     
     // Only fetch Peer into the Flow from Graph API with timeout
     console.log('[INIT] Starting Graph API fetch for Peer into the Flow...');
@@ -1039,8 +1053,8 @@ async function fetchPeerIntoFlow() {
       '0x510da17477baa0a23858c59e9bf80b8d8ad1b6ee', // FIELDS
       '0x6d24ce4c32e556313b431fb156edf2060680a998', // Peer into the Flow
       '0xe94100850ee7507dd57eb1ba67dc0600b18122df', // Morphed Radiance
-      'Faded-Memories',
-      '0x29b58c3146fc013913f987501d91ce1babcf8e32' // Meanwhile
+      'Faded-Memories'
+      // Removed "Meanwhile" to fix duplication issues
     ];
     
     console.log('[INIT] Checking required artwork IDs...');

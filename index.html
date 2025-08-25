@@ -113,16 +113,16 @@
       max-width: 480px;
       width: 90%;
       text-align: center;
-      border: 1px solid rgba(64, 64, 64, 0.3);
+      border: 1px solid rgba(0, 128, 128, 0.3);
       backdrop-filter: blur(12px);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
     .mobile-notice-text h3 {
-      color: #404040;
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0 0 1rem 0;
+      color: #ffffff;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin: 0;
       letter-spacing: 0.01em;
     }
 
@@ -141,17 +141,28 @@
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
+      .mobile-notice {
+        background: rgba(10, 10, 10, 0.7);
+        /* More transparent on mobile */
+        backdrop-filter: blur(8px);
+        /* Less blur on mobile */
+      }
+
       .mobile-notice-content {
         padding: 1.5rem;
         max-width: 90%;
+        background: rgba(10, 10, 10, 0.6);
+        /* More transparent content on mobile */
+        backdrop-filter: blur(6px);
+        /* Less blur on mobile */
+        border: 1px solid rgba(0, 128, 128, 0.4);
+        /* Slightly more visible teal border on mobile */
       }
 
       .mobile-notice-text h3 {
-        font-size: 1.3rem;
-      }
-
-      .mobile-notice-text p {
-        font-size: 0.95rem;
+        font-size: 1rem;
+        color: #ffffff;
+        /* White text on mobile for better visibility */
       }
     }
   </style>
@@ -162,9 +173,7 @@
   <div id="mobile-notice" class="mobile-notice">
     <div class="mobile-notice-content">
       <div class="mobile-notice-text">
-        <h3>Desktop Experience Recommended</h3>
-        <p>Please use a desktop computer or laptop to run these curated experiences.</p>
-        <p>A NEW playlist of curated experiences for mobile devices are soon to earn</p>
+        <h3>Best on desktop. Mobile playlist coming soon.</h3>
       </div>
     </div>
   </div>
