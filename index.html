@@ -93,8 +93,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(10, 10, 10, 0.95);
-      backdrop-filter: blur(12px);
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(8px);
       z-index: 10000;
       display: none;
       align-items: center;
@@ -107,53 +107,65 @@
     }
 
     .mobile-notice-content {
-      background: rgba(10, 10, 10, 0.85);
-      border-radius: 1.1rem;
-      padding: 2rem;
-      max-width: 480px;
-      width: 90%;
+      background: rgba(10, 10, 10, 0.6);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      max-width: 360px;
+      width: 85%;
       text-align: center;
       border: 1px solid rgba(0, 128, 128, 0.3);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
     }
 
     .mobile-notice-text h3 {
       color: #ffffff;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 500;
-      margin: 0;
+      margin: 0 0 1rem 0;
       letter-spacing: 0.01em;
     }
 
-    .mobile-notice-text p {
+    .mobile-continue-btn {
+      background: rgba(0, 128, 128, 0.8);
       color: #ffffff;
-      font-size: 1rem;
-      line-height: 1.6;
-      margin: 0 0 0.5rem 0;
-      opacity: 0.9;
-      font-weight: 400;
+      border: 1px solid rgba(0, 128, 128, 0.6);
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.6rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      backdrop-filter: blur(4px);
     }
 
-    .mobile-notice-text p:last-child {
-      margin-bottom: 0;
+    .mobile-continue-btn:hover {
+      background: rgba(0, 128, 128, 1);
+      border-color: rgba(0, 128, 128, 0.8);
+      transform: translateY(-1px);
+    }
+
+    .mobile-continue-btn:active {
+      transform: translateY(0);
     }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
       .mobile-notice {
-        background: rgba(10, 10, 10, 0.7);
+        background: rgba(10, 10, 10, 0.6);
         /* More transparent on mobile */
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(6px);
         /* Less blur on mobile */
       }
 
       .mobile-notice-content {
-        padding: 1.5rem;
-        max-width: 90%;
-        background: rgba(10, 10, 10, 0.6);
+        padding: 1.2rem;
+        max-width: 320px;
+        width: 80%;
+        background: rgba(10, 10, 10, 0.5);
         /* More transparent content on mobile */
-        backdrop-filter: blur(6px);
+        backdrop-filter: blur(4px);
         /* Less blur on mobile */
         border: 1px solid rgba(0, 128, 128, 0.4);
         /* Slightly more visible teal border on mobile */
@@ -163,6 +175,12 @@
         font-size: 1rem;
         color: #ffffff;
         /* White text on mobile for better visibility */
+        margin-bottom: 0.8rem;
+      }
+
+      .mobile-continue-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
       }
     }
   </style>
@@ -174,6 +192,7 @@
     <div class="mobile-notice-content">
       <div class="mobile-notice-text">
         <h3>Best on desktop. Mobile playlist coming soon.</h3>
+        <button id="mobile-continue-btn" class="mobile-continue-btn">Continue</button>
       </div>
     </div>
   </div>
@@ -1385,6 +1404,7 @@
     // Mobile Device Detection and Notice
     document.addEventListener('DOMContentLoaded', () => {
       const mobileNotice = document.getElementById('mobile-notice');
+      const mobileContinueBtn = document.getElementById('mobile-continue-btn');
 
       // Check if device is mobile
       const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -1399,6 +1419,19 @@
           gtag('event', 'mobile_visit', {
             'device_type': 'mobile',
             'screen_width': window.innerWidth
+          });
+        }
+
+        // Add event listener for continue button
+        if (mobileContinueBtn) {
+          mobileContinueBtn.addEventListener('click', () => {
+            mobileNotice.classList.remove('show');
+            if (window.gtag) {
+              gtag('event', 'mobile_continue', {
+                'device_type': 'mobile',
+                'screen_width': window.innerWidth
+              });
+            }
           });
         }
       }
