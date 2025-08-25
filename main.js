@@ -234,8 +234,12 @@ function navigateToPrevious() {
     // For Peer into the Flow, always start with seed 3
     seed = currentProj.defaultSeed;
     console.log(`[NAV] Reset to default seed ${seed} for ${currentProj.name}`);
+  } else if (currentProj && currentProj.editionSize > 1) {
+    // For multi-edition artworks like FIELDS, start with a random seed
+    seed = getRandSeed(6, currentProj.editionSize);
+    console.log(`[NAV] Reset to random seed ${seed} for multi-edition artwork ${currentProj.name} (editionSize: ${currentProj.editionSize})`);
   } else {
-    // For other artworks, start with seed 6
+    // For single-edition artworks, start with seed 6
     seed = 6;
     console.log(`[NAV] Reset to default seed ${seed} for ${currentProj?.name || 'unknown'}`);
   }
@@ -322,8 +326,12 @@ function navigateToNext() {
     // For Peer into the Flow, always start with seed 3
     seed = currentProj.defaultSeed;
     console.log(`[NAV] Reset to default seed ${seed} for ${currentProj.name}`);
+  } else if (currentProj && currentProj.editionSize > 1) {
+    // For multi-edition artworks like FIELDS, start with a random seed
+    seed = getRandSeed(6, currentProj.editionSize);
+    console.log(`[NAV] Reset to random seed ${seed} for multi-edition artwork ${currentProj.name} (editionSize: ${currentProj.editionSize})`);
   } else {
-    // For other artworks, start with seed 6
+    // For single-edition artworks, start with seed 6
     seed = 6;
     console.log(`[NAV] Reset to default seed ${seed} for ${currentProj?.name || 'unknown'}`);
   }
@@ -676,7 +684,22 @@ function updateEditionInterval(seconds) {
     clearInterval(editionInterval);
   }
   editionInterval = setInterval(() => {
-    seed = getRandSeed(seed, currentProject().editionSize);
+    const currentProj = currentProject();
+    if (!currentProj) {
+      console.log('[EDITION_TIMER] No current project, skipping edition change');
+      return;
+    }
+    
+    const oldSeed = seed;
+    seed = getRandSeed(seed, currentProj.editionSize);
+    
+    console.log(`[EDITION_TIMER] Edition change for "${currentProj.name}":`, {
+      oldSeed: oldSeed,
+      newSeed: seed,
+      editionSize: currentProj.editionSize,
+      artworkId: currentProj.id
+    });
+    
     viewer.setAttribute("url", getUrl());
     updateDetailsPanel();
     disableButtons();
@@ -1505,8 +1528,12 @@ function switchPlaylist(playlistId) {
     // For Peer into the Flow, always start with seed 3
     seed = currentProj.defaultSeed;
     console.log(`[INIT_ROUTE] Set initial seed ${seed} for ${currentProj.name}`);
+  } else if (currentProj && currentProj.editionSize > 1) {
+    // For multi-edition artworks like FIELDS, start with a random seed
+    seed = getRandSeed(6, currentProj.editionSize);
+    console.log(`[INIT_ROUTE] Set random seed ${seed} for multi-edition artwork ${currentProj.name} (editionSize: ${currentProj.editionSize})`);
   } else {
-    // For other artworks, start with seed 6
+    // For single-edition artworks, start with seed 6
     seed = 6;
     console.log(`[INIT_ROUTE] Set initial seed ${seed} for ${currentProj?.name || 'unknown'}`);
   }
@@ -1842,5 +1869,51 @@ window.fixPlaylistDuplicates = function() {
     
     console.log('[FIX] Viewer and details updated successfully!');
   }
+};
+
+// Add a function to test FIELDS edition randomization
+window.testFieldsRandomization = function() {
+  console.log('=== FIELDS EDITION RANDOMIZATION TEST ===');
+  
+  // Find FIELDS artwork
+  const fieldsArtwork = staticArtworks.find(art => art.id === '0x510da17477baa0a23858c59e9bf80b8d8ad1b6ee');
+  
+  if (!fieldsArtwork) {
+    console.error('FIELDS artwork not found!');
+    return;
+  }
+  
+  console.log('FIELDS artwork details:', {
+    name: fieldsArtwork.name,
+    id: fieldsArtwork.id,
+    editionSize: fieldsArtwork.editionSize,
+    currentSeed: seed
+  });
+  
+  // Test random seed generation
+  console.log('Testing random seed generation:');
+  for (let i = 0; i < 5; i++) {
+    const testSeed = getRandSeed(seed, fieldsArtwork.editionSize);
+    console.log(`  Test ${i + 1}: Current seed ${seed} → New seed ${testSeed}`);
+  }
+  
+  // Show current URL
+  const currentUrl = getUrl();
+  console.log('Current FIELDS URL:', currentUrl);
+  
+  // Test edition change
+  console.log('Simulating edition change...');
+  const oldSeed = seed;
+  seed = getRandSeed(seed, fieldsArtwork.editionSize);
+  const newUrl = getUrl();
+  
+  console.log('Edition change result:', {
+    oldSeed: oldSeed,
+    newSeed: seed,
+    oldUrl: currentUrl,
+    newUrl: newUrl
+  });
+  
+  console.log('=== END TEST ===');
 };
 

@@ -85,18 +85,86 @@
   <meta name="twitter:title" content="Interactive Art Experiences | Olta">
   <meta name="twitter:description" content="Explore curated digital artworks and interactive experiences">
   <meta name="twitter:url" content="https://experiences.olta.art">
+  <style>
+    /* Mobile Notice Styling - Updated to match app navigation */
+    .mobile-notice {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(12px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .mobile-notice.show {
+      display: flex;
+    }
+
+    .mobile-notice-content {
+      background: rgba(10, 10, 10, 0.85);
+      border-radius: 1.1rem;
+      padding: 2rem;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      border: 1px solid rgba(64, 64, 64, 0.3);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .mobile-notice-text h3 {
+      color: #404040;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      letter-spacing: 0.01em;
+    }
+
+    .mobile-notice-text p {
+      color: #ffffff;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0 0 0.5rem 0;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    .mobile-notice-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .mobile-notice-content {
+        padding: 1.5rem;
+        max-width: 90%;
+      }
+
+      .mobile-notice-text h3 {
+        font-size: 1.3rem;
+      }
+
+      .mobile-notice-text p {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
   <!-- Mobile Device Notice -->
   <div id="mobile-notice" class="mobile-notice">
     <div class="mobile-notice-content">
-      <div class="mobile-notice-icon">💻</div>
       <div class="mobile-notice-text">
         <h3>Desktop Experience Recommended</h3>
-        <p>For the best interactive experience, please view this app on a desktop computer or laptop. The
-          gesture-controlled artworks require camera access and larger screen real estate.</p>
-        <button id="mobile-continue-btn" class="mobile-continue-btn">Continue Anyway</button>
+        <p>Please use a desktop computer or laptop to run these curated experiences.</p>
+        <p>A NEW playlist of curated experiences for mobile devices are soon to earn</p>
       </div>
     </div>
   </div>
@@ -1308,7 +1376,6 @@
     // Mobile Device Detection and Notice
     document.addEventListener('DOMContentLoaded', () => {
       const mobileNotice = document.getElementById('mobile-notice');
-      const continueBtn = document.getElementById('mobile-continue-btn');
 
       // Check if device is mobile
       const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -1317,18 +1384,6 @@
       if (isMobile || isSmallScreen) {
         // Show mobile notice
         mobileNotice.classList.add('show');
-
-        // Handle continue button
-        continueBtn.addEventListener('click', () => {
-          mobileNotice.classList.remove('show');
-          // Optionally track that user continued on mobile
-          if (window.gtag) {
-            gtag('event', 'mobile_continue', {
-              'device_type': 'mobile',
-              'screen_width': window.innerWidth
-            });
-          }
-        });
 
         // Track mobile visit
         if (window.gtag) {
