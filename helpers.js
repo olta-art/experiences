@@ -65,7 +65,7 @@ export function downloader(timeout = 100 * 1000) {
 }
 
 export async function queryfetcher(url, query) {
-  const download = downloader(20000)
+  const download = downloader(5000) // Reduced from 20000 to 5000 (5 seconds)
   const options = {
     // Example query input:
     // query {
@@ -87,14 +87,23 @@ export async function queryfetcher(url, query) {
   }
 
   try {
+    console.log(`[QUERYFETCHER] Making request to: ${url}`);
+    console.log(`[QUERYFETCHER] Query:`, query);
+    console.log(`[QUERYFETCHER] API Key: ${THE_GRAPH_API_KEY ? 'Present' : 'Missing'}`);
+    
     const response = await download(url, options)
 
-    response?.errors?.forEach((e) => {
-      throw new Error(e.message)
-    })
+    if (response?.errors && response.errors.length > 0) {
+      console.error(`[QUERYFETCHER] Graph API returned errors:`, response.errors);
+      response.errors.forEach((e) => {
+        throw new Error(e.message)
+      })
+    }
 
+    console.log(`[QUERYFETCHER] Response received:`, response);
     return response?.data
   } catch (e) {
+    console.error(`[QUERYFETCHER] Request failed:`, e);
     throw e
   }
 }
@@ -109,14 +118,4 @@ export function decode(s = "") {
     .replaceAll("\\/", "\/")
     .replaceAll(`\\"`, `\"`)
     .replaceAll(`\\\\`, `\\`)
-}
-
-// Example: filter out gesture artworks on mobile
-if (isMobile) {
-  filteredStaticArtworks = filteredStaticArtworks.filter(
-    art => !art.isGesture // or use a name/ID check
-  );
-  filteredProjects = filteredProjects.filter(
-    project => !project.isGesture // or use a name/ID check
-  );
 }

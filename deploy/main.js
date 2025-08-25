@@ -76,7 +76,7 @@ const options = {
   projects: [],
   timing: {
     project: 45,
-    edition: 45,
+    edition: 30,
   },
   display: {
     name: true,
@@ -105,8 +105,11 @@ function navigateToPrevious() {
   current = decrementLoop(current, options.projects.length);
   console.log('[NAV] New current index:', current);
   
-  // Reset seed to 1 for new artwork (don't cycle through editions)
-  seed = 1;
+  // Reset seed to 6 for new artwork (always start with edition 6)
+  seed = 6;
+  
+  // Reset edition timer to give user time to appreciate the new artwork
+  resetEditionTimer();
   
   const newUrl = getUrl();
   console.log('[NAV] New URL:', newUrl);
@@ -146,8 +149,11 @@ function navigateToNext() {
   current = incrementLoop(current, options.projects.length);
   console.log('[NAV] New current index:', current);
   
-  // Reset seed to 1 for new artwork (don't cycle through editions)
-  seed = 1;
+  // Reset seed to 6 for new artwork (always start with edition 6)
+  seed = 6;
+  
+  // Reset edition timer to give user time to appreciate the new artwork
+  resetEditionTimer();
   
   const newUrl = getUrl();
   console.log('[NAV] New URL:', newUrl);
@@ -425,7 +431,7 @@ function renderOptions() {
   `;
 
   updateProjectInterval(45);
-  updateEditionInterval(45);
+  updateEditionInterval(30);
 }
 
 function updateProjectInterval(seconds) {
@@ -458,10 +464,19 @@ function updateEditionInterval(seconds) {
   editionInterval = setInterval(() => {
     seed = getRandSeed(seed, currentProject().editionSize);
     viewer.setAttribute("url", getUrl());
-    updateDetailsPanel(); // <-- ADD THIS LINE
-    // Note: Random button removed - edition cycling handled differently now
+    updateDetailsPanel();
     disableButtons();
   }, seconds * 1000);
+}
+
+// Function to reset edition timer when navigating manually
+function resetEditionTimer() {
+  console.log('[EDITION_TIMER] Resetting edition timer for new artwork');
+  if (editionInterval) {
+    clearInterval(editionInterval);
+  }
+  // Restart the edition timer with current timing
+  updateEditionInterval(options.timing.edition);
 }
 
 const spinner = document.querySelector(".spinner");
@@ -541,16 +556,9 @@ function getUrl() {
   console.log('Address:', address);
   console.log('Seed:', seed);
 
-  // For manual navigation, don't append seed to avoid edition jumping
-  // Only append seed if it's explicitly set to a value other than 1
-  let finalUrl;
-  if (seed === 1) {
-    // Manual navigation - no seed parameter to avoid edition jumping
-    finalUrl = `${url}?id=1&address=${address}`;
-  } else {
-    // Auto-advance or specific edition - include seed
-    finalUrl = `${url}?id=1&seed=${seed}&address=${address}`;
-  }
+  // Use new URL format: contractAddress/editionNumber
+  // This creates cleaner URLs like: 0x6d24ce4c32e556313b431fb156edf2060680a998/6
+  const finalUrl = `${url}?id=1&address=${address}/${seed}`;
   
   console.log('Final URL:', finalUrl);
   return finalUrl;
@@ -1102,6 +1110,9 @@ function switchPlaylist(playlistId) {
     updateDetailsPanel();
     setCurrentProjectIdGlobal();
     updateGlobalVariables();
+    
+    // Reset edition timer when switching playlists
+    resetEditionTimer();
   } else {
     console.warn('No projects found for playlist:', playlistId);
   }
