@@ -922,6 +922,28 @@ if (isMobile) {
   options.display.qr = false;
 }
 
+// Block camera access on mobile devices
+function blockCameraOnMobile() {
+  if (isMobile) {
+    console.log('[CAMERA_BLOCK] Mobile device detected - blocking camera access');
+    
+    // Override getUserMedia to prevent camera access on mobile
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const originalGetUserMedia = navigator.mediaDevices.getUserMedia;
+      
+      navigator.mediaDevices.getUserMedia = function(constraints) {
+        if (constraints && constraints.video) {
+          console.log('[CAMERA_BLOCK] Camera access blocked on mobile device');
+          return Promise.reject(new Error('Camera access not available on mobile devices'));
+        }
+        return originalGetUserMedia.call(this, constraints);
+      };
+      
+      console.log('[CAMERA_BLOCK] Camera access blocked for mobile devices');
+    }
+  }
+}
+
 // Only request camera access once on mobile
 let cameraStream = null;
 async function requestCameraOnce() {
@@ -1018,6 +1040,9 @@ async function fetchPeerIntoFlow() {
   try {
     console.log('[INIT] Starting app initialization...');
     console.log('[INIT] Device type:', isMobile ? 'Mobile' : 'Desktop');
+    
+    // Block camera access on mobile devices BEFORE any artwork loads
+    blockCameraOnMobile();
     
     // Only request camera on desktop devices
     if (!isMobile) {
@@ -1927,6 +1952,47 @@ window.testFieldsRandomization = function() {
     oldUrl: currentUrl,
     newUrl: newUrl
   });
+  
+  console.log('=== END TEST ===');
+};
+
+// Add a global function to manually block camera access if needed
+window.blockCameraAccess = function() {
+  console.log('[CAMERA_BLOCK] Manually blocking camera access...');
+  
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    const originalGetUserMedia = navigator.mediaDevices.getUserMedia;
+    
+    navigator.mediaDevices.getUserMedia = function(constraints) {
+      if (constraints && constraints.video) {
+        console.log('[CAMERA_BLOCK] Camera access blocked manually');
+        return Promise.reject(new Error('Camera access has been manually blocked'));
+      }
+      return originalGetUserMedia.call(this, constraints);
+    };
+    
+    console.log('[CAMERA_BLOCK] Camera access manually blocked');
+    return true;
+  } else {
+    console.log('[CAMERA_BLOCK] No mediaDevices available to block');
+    return false;
+  }
+};
+
+// Add a function to test camera blocking
+window.testCameraBlocking = function() {
+  console.log('=== CAMERA BLOCKING TEST ===');
+  console.log('Is mobile device:', isMobile);
+  console.log('Camera blocked:', navigator.mediaDevices.getUserMedia.toString().includes('Camera access blocked'));
+  
+  // Test camera access
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      console.log('❌ Camera access still working - blocking may have failed');
+    })
+    .catch(error => {
+      console.log('✅ Camera access blocked successfully:', error.message);
+    });
   
   console.log('=== END TEST ===');
 };
