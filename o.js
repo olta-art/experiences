@@ -20,16 +20,6 @@ export class Viewer extends HTMLElement {
       </iframe>
     `);
 
-    // Mobile placeholder for artwork thumbnails
-    const mobilePlaceholder = ranger(`
-      <div class="mobile-placeholder">
-        <div>
-          <h2>Artwork Experience</h2>
-          <p>This interactive artwork is best viewed on a desktop computer or laptop for the full experience.</p>
-        </div>
-      </div>
-    `);
-
 
     // <iframe 
     // style="height:700px; width:100%; overflow: hidden;" src="https://yfhwavf2ac37wdgcee5p62jp4myyk4imhpdrvarmfhawg36firrq.arweave.net/wU9gVLoAt_sMwiE6_2kv4zGFcQw7xxqCLCnBY2_FRGM/?id=1&address=0x6d24ce4c32e556313b431fb156edf2060680a998&seed=9" 
@@ -111,49 +101,12 @@ export class Viewer extends HTMLElement {
           font-size: 0.75rem;
         }
       }
-
-      /* Hide artwork thumbnails on mobile devices */
-      @media (max-width: 768px) {
-        iframe {
-          display: none !important;
-        }
-        
-        /* Show a mobile-friendly placeholder instead */
-        .mobile-placeholder {
-          display: flex !important;
-          align-items: center;
-          justify-content: center;
-          grid-area: one;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-          color: #ffffff;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-          text-align: center;
-          padding: 2rem;
-          box-sizing: border-box;
-        }
-        
-        .mobile-placeholder h2 {
-          font-size: 1.5rem;
-          margin: 0 0 1rem 0;
-          color: #7be7b8;
-        }
-        
-        .mobile-placeholder p {
-          font-size: 1rem;
-          margin: 0;
-          opacity: 0.8;
-          line-height: 1.5;
-        }
-      }
     </style>
   `);
 
     const shadow = this.attachShadow({ mode: "open" });
     shadow.appendChild(style.cloneNode(true));
     shadow.appendChild(iframe.cloneNode(true));
-    shadow.appendChild(mobilePlaceholder.cloneNode(true));
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
