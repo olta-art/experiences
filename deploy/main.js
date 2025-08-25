@@ -101,12 +101,13 @@ function navigateToPrevious() {
     return;
   }
   
+  // Move to previous artwork
   current = decrementLoop(current, options.projects.length);
   console.log('[NAV] New current index:', current);
   
-  if (currentProject() && currentProject().editionSize > 1) {
-    seed = getRandSeed(seed, currentProject().editionSize);
-  }
+  // Reset seed to 1 for new artwork (don't cycle through editions)
+  seed = 1;
+  
   const newUrl = getUrl();
   console.log('[NAV] New URL:', newUrl);
   
@@ -141,12 +142,13 @@ function navigateToNext() {
     return;
   }
   
+  // Move to next artwork
   current = incrementLoop(current, options.projects.length);
   console.log('[NAV] New current index:', current);
   
-  if (currentProject() && currentProject().editionSize > 1) {
-    seed = getRandSeed(seed, currentProject().editionSize);
-  }
+  // Reset seed to 1 for new artwork (don't cycle through editions)
+  seed = 1;
+  
   const newUrl = getUrl();
   console.log('[NAV] New URL:', newUrl);
   
@@ -154,7 +156,6 @@ function navigateToNext() {
   updateDetailsPanel();
   change.classList = "change spin";
   disableButtons();
-  setCurrentProjectIdGlobal();
   updateGlobalVariables();
   showArtworkChangeFeedback('Artwork changed (via Next button)');
   updateUrlParam();
@@ -540,9 +541,18 @@ function getUrl() {
   console.log('Address:', address);
   console.log('Seed:', seed);
 
-  const finalUrl = `${url}?id=1&seed=${seed}&address=${address}`;
+  // For manual navigation, don't append seed to avoid edition jumping
+  // Only append seed if it's explicitly set to a value other than 1
+  let finalUrl;
+  if (seed === 1) {
+    // Manual navigation - no seed parameter to avoid edition jumping
+    finalUrl = `${url}?id=1&address=${address}`;
+  } else {
+    // Auto-advance or specific edition - include seed
+    finalUrl = `${url}?id=1&seed=${seed}&address=${address}`;
+  }
+  
   console.log('Final URL:', finalUrl);
-
   return finalUrl;
 }
 
@@ -679,11 +689,11 @@ const gestureControlPlaylist = [
 ];
 
 const desktopPlaylist = [
-  "FIELDS",
-  "Meanwhile",
-  "Morphed Radiance",
-  "Faded Memories",
-  "0xac771ff04287872ea43263703b43ad5b801e8a1e" // Peer into the Flow
+  "0x510da17477baa0a23858c59e9bf80b8d8ad1b6ee", // FIELDS
+  "0x6d24ce4c32e556313b431fb156edf2060680a998", // Peer into the Flow
+  "0xe94100850ee7507dd57eb1ba67dc0600b18122df", // Morphed Radiance
+  "Faded-Memories",
+
 ];
 
 (async function fetchProjects() {
@@ -964,9 +974,10 @@ const playlists = {
     description: 'Interactive digital artworks for desktop viewing',
     artworks: [
       '0x510da17477baa0a23858c59e9bf80b8d8ad1b6ee', // FIELDS
-      'Faded-Memories',
+      '0x6d24ce4c32e556313b431fb156edf2060680a998', // Peer into the Flow
       '0xe94100850ee7507dd57eb1ba67dc0600b18122df', // Morphed Radiance
-      '0xac771ff04287872ea43263703b43ad5b801e8a1e' // Peer into the Flow
+      'Faded-Memories',
+
     ]
   }
 };

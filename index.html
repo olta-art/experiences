@@ -398,13 +398,12 @@
       "Shadows Touch Across Time": "@epok_tech",
       "Optical Verlet": "@xvijojo",
       "Dissolvi": "@seigneurrrr",
-      "Peer into the Flow": "@peerintotheflow",
 
       // Desktop Experiences Playlist
       "FIELDS": "@fields_art",
       "Faded Memories": "@faded_memories_art", // Add actual handle
       "Morphed Radiance": "@morphed_radiance",
-      "Meanwhile": "@meanwhile_art" // Add actual handle
+
     };
 
     // Get current playlist name for share text
@@ -479,7 +478,7 @@
         "FIELDS": "@fields_art",
         "Faded Memories": "@faded_memories_art",
         "Morphed Radiance": "@morphed_radiance",
-        "Meanwhile": "@meanwhile_art"
+
       };
       const twitterHandle = twitterHandles[projectName] || '';
 
@@ -1293,14 +1292,18 @@
       }
     });
 
-    document.getElementById('share-playlist-btn').addEventListener('click', async () => {
-      const playlistDropdown = document.getElementById('playlist-dropdown');
-      const playlistId = playlistDropdown ? playlistDropdown.value : 'gesture-control';
-      const url = `${window.location.origin}${window.location.pathname}?playlist=${encodeURIComponent(playlistId)}`;
-      await navigator.clipboard.writeText(url);
-      alert('Playlist link copied!');
-      // Optionally open Twitter, etc.
-    });
+    // Check if share-playlist-btn exists before adding event listener
+    const sharePlaylistBtn = document.getElementById('share-playlist-btn');
+    if (sharePlaylistBtn) {
+      sharePlaylistBtn.addEventListener('click', async () => {
+        const playlistDropdown = document.getElementById('playlist-dropdown');
+        const playlistId = playlistDropdown ? playlistDropdown.value : 'gesture-control';
+        const url = `${window.location.origin}${window.location.pathname}?playlist=${encodeURIComponent(playlistId)}`;
+        await navigator.clipboard.writeText(url);
+        alert('Playlist link copied!');
+        // Optionally open Twitter, etc.
+      });
+    }
 
     // Mobile Device Detection and Notice
     document.addEventListener('DOMContentLoaded', () => {
