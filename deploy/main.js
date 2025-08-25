@@ -682,7 +682,10 @@ const desktopPlaylist = [
   "FIELDS",
   "Meanwhile",
   "Morphed Radiance",
-  "Faded Memories"
+  "Faded Memories",
+  "Peer-into-the-Flow",
+  "Sacred-Moth",
+  "Meanwhile"
 ];
 
 (async function fetchProjects() {
@@ -964,7 +967,10 @@ const playlists = {
     artworks: [
       '0x510da17477baa0a23858c59e9bf80b8d8ad1b6ee', // FIELDS
       'Faded-Memories',
-      '0xe94100850ee7507dd57eb1ba67dc0600b18122df' // Morphed Radiance
+      '0xe94100850ee7507dd57eb1ba67dc0600b18122df', // Morphed Radiance
+      'Peer-into-the-Flow',
+      'Sacred-Moth',
+      'Meanwhile'
     ]
   }
 };
