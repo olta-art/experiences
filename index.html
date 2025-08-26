@@ -86,15 +86,14 @@
   <meta name="twitter:description" content="Explore curated digital artworks and interactive experiences">
   <meta name="twitter:url" content="https://experiences.olta.art">
   <style>
-    /* Mobile Notice Styling - Updated to match app navigation */
+    /* Mobile Notice Styling - Simple dark grey blocker overlay */
     .mobile-notice {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(10, 10, 10, 0.4);
-      backdrop-filter: blur(4px);
+      background: #2a2a2a;
       z-index: 10000;
       display: none;
       align-items: center;
@@ -107,51 +106,50 @@
     }
 
     .mobile-notice-content {
-      background: rgba(10, 10, 10, 0.3);
+      background: #1a1a1a;
       border-radius: 1rem;
-      padding: 1.5rem;
-      max-width: 360px;
-      width: 85%;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
       text-align: center;
-      border: 1px solid rgba(0, 128, 128, 0.3);
-      backdrop-filter: blur(3px);
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+      border: 1px solid #404040;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
 
     .mobile-notice-text h3 {
       color: #ffffff;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: 500;
       margin: 0;
       letter-spacing: 0.01em;
     }
 
+    /* Hide loading text on mobile devices */
+    @media (max-width: 768px) {
+      #loading {
+        display: none !important;
+      }
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
       .mobile-notice {
-        background: rgba(10, 10, 10, 0.3);
-        /* Much more transparent on mobile */
-        backdrop-filter: blur(2px);
-        /* Very minimal blur on mobile */
+        background: #2a2a2a;
+        /* Dark grey blocker overlay */
       }
 
       .mobile-notice-content {
-        padding: 1.2rem;
-        max-width: 320px;
-        width: 80%;
-        background: rgba(10, 10, 10, 0.2);
-        /* Much more transparent content on mobile */
-        backdrop-filter: blur(1px);
-        /* Minimal blur on mobile */
-        border: 1px solid rgba(0, 128, 128, 0.4);
-        /* Slightly more visible teal border on mobile */
+        padding: 1.5rem;
+        max-width: 350px;
+        width: 85%;
+        background: #0d0d0d;
+        /* 95% black content box on mobile */
+        border: 1px solid #404040;
       }
 
       .mobile-notice-text h3 {
-        font-size: 1rem;
+        font-size: 1.1rem;
         color: #ffffff;
-        /* White text on mobile for better visibility */
-        margin-bottom: 0;
       }
     }
   </style>
